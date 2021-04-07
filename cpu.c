@@ -1,6 +1,37 @@
 
 #include "cpu.h"
 
+uint16_t get_AF(struct cpu_registers *regs){
+	return regs->A << 8 | regs->F;
+}
+uint16_t get_BC(struct cpu_registers *regs){
+	return regs->B << 8 | regs->C;
+}
+uint16_t get_DE(struct cpu_registers *regs){
+	return regs->D << 8 | regs->E;
+}
+uint16_t get_HL(struct cpu_registers *regs){
+	return regs->H << 8 | regs->L;
+}
+
+void set_AF(struct cpu_registers *regs, uint16_t value) {
+	regs->A = (uint8_t)(value >> 8);
+	regs->F = (uint8_t)(value & 0x00FF);
+}
+void set_BC(struct cpu_registers *regs, uint16_t value){
+	regs->B = (uint8_t)(value >> 8);
+	regs->C = (uint8_t)(value & 0x00FF);
+}
+void set_DE(struct cpu_registers *regs, uint16_t value){
+	regs->D = (uint8_t)(value >> 8);
+	regs->E = (uint8_t)(value & 0x00FF);
+}
+void set_HL(struct cpu_registers *regs, uint16_t value){
+	regs->H = (uint8_t)(value >> 8);
+	regs->L = (uint8_t)(value & 0x00FF);
+}
+
+
 int set_cpu_flag(struct cpu_registers *regs, cpu_flag_name flag,
 		 cpu_flag_value value)
 {
@@ -41,11 +72,13 @@ uint8_t exec_opcode(uint8_t opcode, struct cpu_registers *regs, uint8_t *mem)
 	uint16_t u16 =
 		mem[regs->PC + 2] << 8 | u8; // OP B1 B2 => B1 is LSB, B2 is MSB
 
-	printf("regs->PC = %d, \n", regs->PC);
+	uint32_t u32 = 0;
+
+	/*printf("regs->PC = %d, \n", regs->PC);
 	printf("u8 = 0x%x, mem[%d] = 0x%x, mem[%d] = 0x%x =====>>>> u16 = 0x%04x" PRIu16
 	       "\n",
 	       u8, (regs->PC) + 1, mem[regs->PC + 1], (regs->PC) + 2,
-	       mem[regs->PC + 2], u16);
+	       mem[regs->PC + 2], u16);*/
 
 	switch (opcode) {
 	case 0x00: // NOP
@@ -109,8 +142,37 @@ uint8_t exec_opcode(uint8_t opcode, struct cpu_registers *regs, uint8_t *mem)
 		set_cpu_flag(regs, FLAG_HALF_CARRY, FALSE);
 		break;
 
+	case 0x08: // LD (a16),SP
+		length = 3;
+		duration = 20;
+		memcpy(&mem[u16], &regs->SP,
+		       sizeof(uint16_t)); // TODO: check if LSB or MSB order
+		//memcpy(&regs->BC, &u16, sizeof(uint16_t));   // TODO: check if LSB or MSB order
+		break;
+
+	case 0x09: // ADD HL,BC
+		length = 1;
+		duration = 8;
+		set_cpu_flag(regs, FLAG_SUB, FALSE);
+		set_cpu_flag(regs, FLAG_HALF_CARRY, regs->L + regs->C > 0xFF ? TRUE : FALSE);
+		set_cpu_flag(regs, FLAG_CARRY, (uint32_t)get_HL(regs) + (uint32_t)get_BC(regs) > 0xFFFF ? TRUE : FALSE);
+		set_HL(regs, get_HL(regs) + get_BC(regs));
+		break;
+
+	case 0x0A: // LD A,(BC)
+		length = 1;
+		duration = 8;
+		regs->A = mem[get_BC(regs)];
+		break;
+
+	case 0x0B: // DEC BC
+		length = 1;
+		duration = 8;
+		set_BC(regs, get_BC(regs) - 1);
+		break;	
+
 	default:
-		printf("[ERROR][%s:%d] unkown opcode !\n", __func__, __LINE__);
+		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__, __LINE__, opcode);
 	}
 
 	// TOOD: wait cycles here ?

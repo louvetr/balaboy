@@ -33,6 +33,16 @@ typedef enum {
     TRUE = 1,
 } cpu_flag_value;
 
+uint16_t get_AF(struct cpu_registers *regs);
+uint16_t get_BC(struct cpu_registers *regs);
+uint16_t get_DE(struct cpu_registers *regs);
+uint16_t get_HL(struct cpu_registers *regs);
+
+void set_AF(struct cpu_registers *regs, uint16_t value);
+void set_BC(struct cpu_registers *regs, uint16_t value);
+void set_DE(struct cpu_registers *regs, uint16_t value);
+void set_HL(struct cpu_registers *regs, uint16_t value);
+
 uint8_t exec_opcode(uint8_t opcode, struct cpu_registers *regs, uint8_t *mem);
 
 int set_cpu_flag(struct cpu_registers *regs, cpu_flag_name flag,  cpu_flag_value value);
