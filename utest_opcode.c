@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "cpu.h"
+#include "memory.h"
 
 struct opcode_info {
 	uint8_t code;
@@ -24,13 +25,13 @@ struct opcode_info opcode_dict[12] = {
 	{.code = 0x0B, .name = "DEC BC", .byte1 = 0x00, .byte2 = 0x00 },
 };
 
-static int cpu_test_opcode(struct opcode_info op_info, uint8_t mem[3])
+static int cpu_test_opcode(struct opcode_info op_info)
 {
-	mem[0] = op_info.code;
-	mem[1] = op_info.byte1;
-	mem[2] = op_info.byte2;
+	mem_set_byte(0, op_info.code);
+	mem_set_byte(1, op_info.byte1);
+	mem_set_byte(2, op_info.byte2);
 	printf("\n");
-	cpu_exec_opcode(mem[0], mem);
+	cpu_exec_opcode(mem_get_byte(0));
 	return 0;
 }
 
@@ -67,7 +68,6 @@ int testsuite_opcodes()
 {
 	printf("\n####################### CPU OPCODES UTEST #########################\n");
 
-	uint8_t mem[3] = { 0x00, 0x00, 0x00 };
 	uint8_t memfull[8000];
 	uint8_t lg = 0;
 	uint8_t opcode = 0x00;
@@ -75,63 +75,61 @@ int testsuite_opcodes()
 	void cpu_reset_registers();
 	memset(memfull, 0, 8000);
 
-	// 0x01 : NOP
+	// 0x00 : NOP
 	opcode = 0x00;
-	lg = cpu_exec_opcode(mem[0], mem);
-	printf("[0x00][NOP] --------------------- mem={0x%X, 0x%X, 0x%X}\n",
-	       mem[0], mem[1], mem[2]);
+	lg = cpu_exec_opcode(mem_get_byte(0));
 
 	// 0x01 : LD BC,d16
 	opcode = 0x01;
 	cpu_reset_registers();
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_BC() == 0x4321);
 
-	// LD (BC),A
+	// 0x02 : LD (BC),A
 	opcode = 0x02;
 	cpu_reset_registers();
 	cpu_set_A(0x42);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_BC() == 0x0042);
 
-	// INC BC
+	// 0x03 : INC BC
 	opcode = 0x03;
 	cpu_reset_registers();
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode],
 			      cpu_get_BC() == 0x0001);
 
-	// INC B
+	// 0x04 : INC B
 	opcode = 0x04;
 	cpu_reset_registers();
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_B() == 0x01);
 	cpu_set_B(0xFF);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_B() == 0x00);
 
-	// DEC B
+	// 0x05 : DEC B
 	opcode = 0x05;
 	cpu_reset_registers();
 	cpu_set_B(0x01);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_B() == 0x00);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_B() == 0xFF);
 
-	// LD B,d8
+	// 0x06 : LD B,d8
 	opcode = 0x06;
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_B() == 0x42);
 
-	// RLC A
+	// 0x07 : RLC A
 	opcode = 0x07;
 	cpu_reset_registers();
 	cpu_set_A(0x01);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x02);
 	cpu_set_A(0xFF);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode],
 			      cpu_get_A() == 0xFE && cpu_get_F() == 0x10);
 
@@ -139,30 +137,30 @@ int testsuite_opcodes()
 	opcode = 0x08;
 	cpu_reset_registers();
 	cpu_set_SP(0x42);
-	memcpy(memfull, mem, 3);
-	cpu_test_opcode(opcode_dict[opcode], memfull);
-	printf("memfull[0x1234] = 0x%x\n", memfull[0x1234]);
-	cpu_print_test_result(opcode_dict[opcode], memfull[0x1234] == 0x42);
+	//memcpy(memfull, mem, 3);
+	cpu_test_opcode(opcode_dict[opcode]);
+	printf("memfull[0x1234] = 0x%x\n", mem_get_byte(0x1234));
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(0x1234) == 0x42);
 
 	// 0x09: ADD HL,BC
 	opcode = 0x09;
 	cpu_reset_registers();
 	cpu_set_HL(0x1111);
 	cpu_set_BC(0x2222);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_HL() == 0x3333);
 	// test carry flag
 	cpu_reset_registers();
 	cpu_set_HL(0xF000);
 	cpu_set_BC(0x2222);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode],
 			      cpu_get_HL() == 0x1222 && cpu_get_F() == 0x10);
 	// test half carry flag
 	cpu_reset_registers();
 	cpu_set_HL(0x00FF);
 	cpu_set_BC(0x0001);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode],
 			      cpu_get_HL() == 0x0100 && cpu_get_F() == 0x20);
 
@@ -170,14 +168,14 @@ int testsuite_opcodes()
 	opcode = 0x0A;
 	cpu_reset_registers();
 	cpu_set_BC(0x02);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x42);
 
 	// 0x0B: DEC BC
 	opcode = 0x0B;
 	cpu_reset_registers();
 	cpu_set_BC(0x77);
-	cpu_test_opcode(opcode_dict[opcode], mem);
+	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_BC() == 0x76);
 
 	return 0;

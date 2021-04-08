@@ -1,5 +1,6 @@
 
 #include "cpu.h"
+#include "memory.h"
 
 // define locally the CPU register structure
 struct cpu_registers {
@@ -106,19 +107,19 @@ int cpu_set_flag(cpu_flag_name flag, cpu_flag_value value)
 	return 0;
 }
 
-uint8_t cpu_exec_opcode(uint8_t opcode, uint8_t *mem)
+uint8_t cpu_exec_opcode(uint8_t opcode)
 {
 	uint8_t length = 0; // length in byte
 	uint8_t duration = 0; // duration in clock cycles
 
-	uint8_t u8 = mem[regs.PC + 1];
+	uint8_t u8 = mem_get_byte(regs.PC + 1);
 
 	// Get the u16 value after opcode even if not needed.
 	// Done before the switch per pure laziness (and to avoid possible error since we have 250+ case)
 
 	// TODO: WARNING: check u8 LSB is OK for all u16 used by opcodes
 	uint16_t u16 =
-		mem[regs.PC + 2] << 8 | u8; // OP B1 B2 => B1 is LSB, B2 is MSB
+		mem_get_byte(regs.PC + 2) << 8 | u8; // OP B1 B2 => B1 is LSB, B2 is MSB
 
 	uint32_t u32 = 0;
 
@@ -168,7 +169,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode, uint8_t *mem)
 	case 0x06: // LD B,d8
 		length = 2;
 		duration = 8;
-        regs.B = mem[regs.PC+1];
+        regs.B = mem_get_byte(regs.PC+1);
 		break;
 
 	case 0x07: // RLC A
@@ -184,8 +185,10 @@ uint8_t cpu_exec_opcode(uint8_t opcode, uint8_t *mem)
 	case 0x08: // LD (a16),SP
 		length = 3;
 		duration = 20;
-		memcpy(&mem[u16], &regs.SP,
-		       sizeof(uint16_t)); // TODO: check if LSB or MSB order
+		// TODO: check LSB or MSB
+		mem_set_byte(u16, regs.SP);
+		/*memcpy(&mem[u16], &regs.SP,
+		       sizeof(uint16_t)); // TODO: check if LSB or MSB order*/
 		break;
 
 	case 0x09: // ADD HL,BC
@@ -200,7 +203,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode, uint8_t *mem)
 	case 0x0A: // LD A,(BC)
 		length = 1;
 		duration = 8;
-		regs.A = mem[cpu_get_BC()];
+		regs.A = mem_get_byte(cpu_get_BC());
 		break;
 
 	case 0x0B: // DEC BC

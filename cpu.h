@@ -57,7 +57,7 @@ void cpu_set_HL(uint16_t value);
 void cpu_set_SP(uint16_t value);
 void cpu_set_PC(uint16_t value);
 
-uint8_t cpu_exec_opcode(uint8_t opcode, uint8_t *mem);
+uint8_t cpu_exec_opcode(uint8_t opcode);
 
 int cpu_set_flag(cpu_flag_name flag, cpu_flag_value value);
 
