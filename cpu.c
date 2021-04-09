@@ -2,6 +2,10 @@
 #include "cpu.h"
 #include "memory.h"
 
+/////////////////////////////////////////////////////////////////////////////////////
+// defintions and local stuff
+/////////////////////////////////////////////////////////////////////////////////////
+
 // define locally the CPU register structure
 struct cpu_registers {
     uint8_t A;
@@ -19,6 +23,41 @@ struct cpu_registers {
 // declare locally an instance of the register structure.
 // This struct var has to be reach externally via getter and setter funcions
 static struct cpu_registers regs;
+
+/////////////////////////////////////////////////////////////////////////////////////
+// private functions
+/////////////////////////////////////////////////////////////////////////////////////
+
+static void INC_u8(uint8_t *ptr, uint8_t *length, uint8_t *duration) {
+	(*ptr)++;
+	cpu_set_flag(FLAG_ZERO, *ptr == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, *ptr == 0 ? TRUE : FALSE);
+}
+
+static void DEC_u8(uint8_t *ptr, uint8_t *length, uint8_t *duration) {
+	(*ptr)--;
+	cpu_set_flag(FLAG_ZERO, *ptr == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, TRUE);
+	cpu_set_flag(FLAG_HALF_CARRY, *ptr == 255 ? TRUE : FALSE);
+}
+
+static void LD_mem_u8(uint16_t addr, uint8_t src) {
+	mem_set_byte(addr, src);
+}
+
+static void LD_reg_u8(uint8_t *reg_u8, uint8_t src) {
+	*reg_u8 = src;
+}
+
+static void LD_mem_u16(uint16_t addr, uint16_t src) {
+	mem_set_byte(addr, src & 0x00FF);
+	mem_set_byte(addr+1, src >> 8);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// public functions
+/////////////////////////////////////////////////////////////////////////////////////
 
 void cpu_reset_registers(){
 	memset(&regs, 0, sizeof(struct cpu_registers));
@@ -107,6 +146,27 @@ int cpu_set_flag(cpu_flag_name flag, cpu_flag_value value)
 	return 0;
 }
 
+cpu_flag_value cpu_get_flag(cpu_flag_name flag)
+{
+	cpu_flag_value ret = FALSE;
+	switch (flag) {
+	case FLAG_ZERO:
+		ret = regs.F & 0x80 ? TRUE : FALSE;
+		break;
+	case FLAG_SUB:
+		ret = regs.F & 0x40 ? TRUE : FALSE;
+		break;
+	case FLAG_HALF_CARRY:
+		ret = regs.F & 0x20 ? TRUE : FALSE;
+		break;
+	case FLAG_CARRY:
+		ret = regs.F & 0x10 ? TRUE : FALSE;
+		break;
+	default:
+		printf("[ERROR][%s:%d] invalid flag\n", __func__, __LINE__);
+	}
+}
+
 uint8_t cpu_exec_opcode(uint8_t opcode)
 {
 	uint8_t length = 0; // length in byte
@@ -124,6 +184,8 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	uint32_t u32 = 0;
 
 	switch (opcode) {
+
+	// 0x0X ////////////////////////////////////////////////////////////////
 	case 0x00: // NOP
 		length = 1;
 		duration = 4;
@@ -138,8 +200,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x02: // LD (BC),A
 		length = 1;
 		duration = 8;
-		u16 = regs.A;
-		cpu_set_BC(u16);
+		LD_mem_u8(cpu_get_BC(), regs.A);
 		break;
 
 	case 0x03: // INC BC
@@ -149,34 +210,28 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		break;
 
 	case 0x04: // INC B
-		length = 1;
+		length = 1;	
 		duration = 4;
-		regs.B++;
-		cpu_set_flag(FLAG_ZERO, regs.B == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, FALSE);
-		cpu_set_flag(FLAG_HALF_CARRY, regs.B == 0 ? TRUE : FALSE);
+		INC_u8(&regs.B, &length, &duration);
 		break;
 
 	case 0x05: // DEC B
 		length = 1;
 		duration = 4;
-		regs.B--;
-		cpu_set_flag(FLAG_ZERO, regs.B == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, TRUE);
-		cpu_set_flag(FLAG_HALF_CARRY, regs.B == 255 ? TRUE : FALSE);
+		DEC_u8(&regs.B, &length, &duration);
 		break;
 
 	case 0x06: // LD B,d8
 		length = 2;
 		duration = 8;
-        regs.B = mem_get_byte(regs.PC+1);
+		LD_reg_u8(&regs.B, mem_get_byte(regs.PC+1));
 		break;
 
 	case 0x07: // RLC A
 		length = 1;
 		duration = 4;
+        regs.A = (regs.A << 1) | (regs.A >> 7);
 		cpu_set_flag(FLAG_CARRY, regs.A & 0x80 ? TRUE : FALSE);
-        regs.A = regs.A << 1;
 		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 		cpu_set_flag(FLAG_SUB, FALSE);
 		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
@@ -185,10 +240,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x08: // LD (a16),SP
 		length = 3;
 		duration = 20;
-		// TODO: check LSB or MSB
-		mem_set_byte(u16, regs.SP);
-		/*memcpy(&mem[u16], &regs.SP,
-		       sizeof(uint16_t)); // TODO: check if LSB or MSB order*/
+		LD_mem_u16(u16, regs.SP);
 		break;
 
 	case 0x09: // ADD HL,BC
@@ -203,7 +255,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x0A: // LD A,(BC)
 		length = 1;
 		duration = 8;
-		regs.A = mem_get_byte(cpu_get_BC());
+		LD_reg_u8(&regs.A, mem_get_byte(cpu_get_BC()));
 		break;
 
 	case 0x0B: // DEC BC
@@ -211,6 +263,164 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 8;
 		cpu_set_BC(cpu_get_BC(regs) - 1);
 		break;	
+
+	case 0x0C: // INC C
+		length = 1;
+		duration = 4;
+		INC_u8(&regs.C, &length, &duration);
+		break;
+
+	case 0x0D: // DEC C
+		length = 1;
+		duration = 4;	
+		DEC_u8(&regs.C, &length, &duration);
+		break;
+
+	case 0x0E: // LD C,d8
+		length = 2;
+		duration = 8;
+		LD_reg_u8(&regs.C, mem_get_byte(regs.PC+1));
+		break;
+
+	case 0x0F: // RRC A
+		length = 1;
+		duration = 4;
+		cpu_set_flag(FLAG_CARRY, regs.A & 0x01);
+        regs.A = regs.A >> 1 | (regs.A & 0x01) << 7;
+		// TODO: force ZERO flag to FALSE ?
+		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+		cpu_set_flag(FLAG_SUB, FALSE);
+		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		break;
+
+	// 0x1X ////////////////////////////////////////////////////////////////
+	case 0x10: // STOP
+		length = 2;
+		duration = 8;
+		// TODO: perform stop action
+		break;
+
+	case 0x11: // LD DE,d16
+		length = 3;
+		duration = 12;
+		cpu_set_DE(u16);
+		break;
+
+	case 0x12: // LD (DE),A
+		length = 1;
+		duration = 8;
+		LD_mem_u8(cpu_get_DE(), regs.A);
+		break;
+
+	case 0x13: // INC DE
+		length = 1;
+		duration = 8;
+		cpu_set_DE(cpu_get_DE()+1);
+		break;
+
+	case 0x14: // INC D
+		length = 1;	
+		duration = 4;
+		INC_u8(&regs.D, &length, &duration);
+		break;
+
+	case 0x15: // DEC D
+		length = 1;	
+		duration = 4;
+		DEC_u8(&regs.D, &length, &duration);
+		break;
+
+	case 0x16: // LD D,d8
+		length = 2;
+		duration = 8;
+		LD_reg_u8(&regs.D, mem_get_byte(regs.PC+1));
+		break;
+
+	case 0x17: // RL A
+		length = 1;
+		duration = 4;
+        regs.A = (regs.A << 1) | cpu_get_flag(FLAG_CARRY);
+		cpu_set_flag(FLAG_CARRY, regs.A & 0x80 ? TRUE : FALSE);
+		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+		cpu_set_flag(FLAG_SUB, FALSE);
+		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		break;
+
+	case 0x18: // JR r8
+		length = 2;
+		duration = 12;
+		int8_t i8 = (int8_t)mem_get_byte(regs.PC+1);
+		printf("[cpu.c] regs.PC + i8 = 0x%x = 0x%x + %d (0x%x)\n", regs.PC + i8, regs.PC, i8, mem_get_byte(regs.PC+1));
+		printf("[cpu.c] int16_t (int16_t)regs.PC + (int16_t)i8 = %d + %d = %d\n",
+		(int16_t)regs.PC + (int16_t)i8, (int16_t)regs.PC, (int16_t)i8);
+		regs.PC = (uint16_t)((int16_t)regs.PC + (int16_t)i8); // TODO: check if final PC value is right
+		printf("[cpu.c] regs.PC = 0x%x\n", regs.PC);
+		break;	
+
+	case 0x19: // ADD HL,DE
+		length = 1;
+		duration = 8;
+		cpu_set_flag(FLAG_SUB, FALSE);
+		cpu_set_flag(FLAG_HALF_CARRY, regs.L + regs.E > 0xFF ? TRUE : FALSE);
+		cpu_set_flag(FLAG_CARRY, (uint32_t)cpu_get_HL() + (uint32_t)cpu_get_DE() > 0xFFFF ? TRUE : FALSE);
+		cpu_set_HL( cpu_get_HL() + cpu_get_DE());
+		break;
+
+	case 0x1A: // LD A,(DE)
+		length = 1;
+		duration = 8;
+		LD_reg_u8(&regs.A, mem_get_byte(cpu_get_DE()));
+		break;
+
+	case 0x1B: // DEC DE
+		length = 1;
+		duration = 8;
+		cpu_set_DE(cpu_get_DE(regs) - 1);
+		break;	
+
+	case 0x1C: // INC E
+		length = 1;
+		duration = 4;
+		INC_u8(&regs.E, &length, &duration);
+		break;
+
+	case 0x1D: // DEC E
+		length = 1;
+		duration = 4;	
+		DEC_u8(&regs.E, &length, &duration);
+		break;
+
+	case 0x1E: // LD E,d8
+		length = 2;
+		duration = 8;
+		LD_reg_u8(&regs.E, mem_get_byte(regs.PC+1));
+		break;
+
+	case 0x1F: // RR A
+		length = 1;
+		duration = 4;
+		uint8_t tmp_carry = regs.A & 0x01;
+        regs.A = regs.A >> 1 | cpu_get_flag(FLAG_CARRY) << 7;
+		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+		cpu_set_flag(FLAG_SUB, FALSE);
+		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		cpu_set_flag(FLAG_CARRY, tmp_carry);
+		break;
+
+
+	// 0x2X ////////////////////////////////////////////////////////////////
+	case 0x20: // JR NZ,r8
+		length = 2;
+
+		if(cpu_get_flag(FLAG_ZERO)) {
+			duration = 8;
+		} else {
+			duration = 12;
+			int8_t i8 = (int8_t)mem_get_byte(regs.PC+1);
+			regs.PC = (uint16_t)((int16_t)regs.PC + (int16_t)i8); // TODO: check if final PC value is right
+		}
+
+		break;
 
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__, __LINE__, opcode);

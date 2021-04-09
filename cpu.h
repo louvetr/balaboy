@@ -59,6 +59,7 @@ void cpu_set_PC(uint16_t value);
 
 uint8_t cpu_exec_opcode(uint8_t opcode);
 
+cpu_flag_value cpu_get_flag(cpu_flag_name flag);
 int cpu_set_flag(cpu_flag_name flag, cpu_flag_value value);
 
 #endif
