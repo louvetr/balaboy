@@ -28,18 +28,19 @@ static struct cpu_registers regs;
 // private functions
 /////////////////////////////////////////////////////////////////////////////////////
 
-static void INC_u8(uint8_t *ptr, uint8_t *length, uint8_t *duration) {
+static void INC_u8(uint8_t *ptr) {
 	(*ptr)++;
 	cpu_set_flag(FLAG_ZERO, *ptr == 0 ? TRUE : FALSE);
 	cpu_set_flag(FLAG_SUB, FALSE);
 	cpu_set_flag(FLAG_HALF_CARRY, *ptr == 0 ? TRUE : FALSE);
 }
 
-static void DEC_u8(uint8_t *ptr, uint8_t *length, uint8_t *duration) {
+static void DEC_u8(uint8_t *ptr) {
 	(*ptr)--;
 	cpu_set_flag(FLAG_ZERO, *ptr == 0 ? TRUE : FALSE);
 	cpu_set_flag(FLAG_SUB, TRUE);
 	cpu_set_flag(FLAG_HALF_CARRY, *ptr == 255 ? TRUE : FALSE);
+	// TODO: check HC flag
 }
 
 static void LD_mem_u8(uint16_t addr, uint8_t src) {
@@ -212,13 +213,13 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x04: // INC B
 		length = 1;	
 		duration = 4;
-		INC_u8(&regs.B, &length, &duration);
+		INC_u8(&regs.B);
 		break;
 
 	case 0x05: // DEC B
 		length = 1;
 		duration = 4;
-		DEC_u8(&regs.B, &length, &duration);
+		DEC_u8(&regs.B);
 		break;
 
 	case 0x06: // LD B,d8
@@ -261,19 +262,19 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x0B: // DEC BC
 		length = 1;
 		duration = 8;
-		cpu_set_BC(cpu_get_BC(regs) - 1);
+		cpu_set_BC(cpu_get_BC() - 1);
 		break;	
 
 	case 0x0C: // INC C
 		length = 1;
 		duration = 4;
-		INC_u8(&regs.C, &length, &duration);
+		INC_u8(&regs.C);
 		break;
 
 	case 0x0D: // DEC C
 		length = 1;
 		duration = 4;	
-		DEC_u8(&regs.C, &length, &duration);
+		DEC_u8(&regs.C);
 		break;
 
 	case 0x0E: // LD C,d8
@@ -321,13 +322,13 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x14: // INC D
 		length = 1;	
 		duration = 4;
-		INC_u8(&regs.D, &length, &duration);
+		INC_u8(&regs.D);
 		break;
 
 	case 0x15: // DEC D
 		length = 1;	
 		duration = 4;
-		DEC_u8(&regs.D, &length, &duration);
+		DEC_u8(&regs.D);
 		break;
 
 	case 0x16: // LD D,d8
@@ -375,19 +376,19 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x1B: // DEC DE
 		length = 1;
 		duration = 8;
-		cpu_set_DE(cpu_get_DE(regs) - 1);
+		cpu_set_DE(cpu_get_DE() - 1);
 		break;	
 
 	case 0x1C: // INC E
 		length = 1;
 		duration = 4;
-		INC_u8(&regs.E, &length, &duration);
+		INC_u8(&regs.E);
 		break;
 
 	case 0x1D: // DEC E
 		length = 1;
 		duration = 4;	
-		DEC_u8(&regs.E, &length, &duration);
+		DEC_u8(&regs.E);
 		break;
 
 	case 0x1E: // LD E,d8
@@ -419,7 +420,141 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			int8_t i8 = (int8_t)mem_get_byte(regs.PC+1);
 			regs.PC = (uint16_t)((int16_t)regs.PC + (int16_t)i8); // TODO: check if final PC value is right
 		}
+		break;
 
+	case 0x21: // LD HL,d16
+		length = 3;
+		duration = 12;
+		cpu_set_HL(u16);
+		break;
+
+	case 0x22: // LD (HL+),A
+		length = 1;
+		duration = 8;
+		LD_mem_u8(cpu_get_HL(), regs.A);
+		cpu_set_HL(cpu_get_HL()+1);
+		break;
+
+	case 0x23: // INC HL
+		length = 1;
+		duration = 8;
+		cpu_set_HL(cpu_get_HL()+1);
+		break;
+
+	case 0x24: // INC H
+		length = 1;	
+		duration = 4;
+		INC_u8(&regs.H);
+		break;
+
+	case 0x25: // DEC H
+		length = 1;	
+		duration = 4;
+		DEC_u8(&regs.H);
+		break;
+
+	case 0x26: // LD H,d8
+		length = 2;
+		duration = 8;
+		LD_reg_u8(&regs.H, mem_get_byte(regs.PC+1));
+		break;
+
+	case 0x27: // DAA
+		length = 1;
+		duration = 4;
+		uint8_t D1 = regs.A >> 4;
+		uint8_t D2 = regs.A & 0x0F;
+		if (cpu_get_flag(FLAG_SUB))
+		{
+			if (cpu_get_flag(FLAG_SUB) | D2 > 9)
+				D2 -= 6;
+			if (cpu_get_flag(FLAG_CARRY))
+				D1 -= 6;
+			if (D1 > 9)
+			{
+				D1 -= 6;
+				cpu_set_flag(FLAG_CARRY, TRUE);
+			}
+		}
+		else
+		{
+			if (cpu_get_flag(FLAG_HALF_CARRY)) D2 += 6;
+			if (cpu_get_flag(FLAG_CARRY)) D1 += 6;
+			if (D2 > 9)
+			{
+				D2 -= 10;
+				D1++;
+			}
+			if (D1 > 9)
+			{
+				D1 -= 10;
+				cpu_set_flag(FLAG_CARRY, TRUE);
+			}
+		}
+		regs.A = ((D1 << 4) & 0xF0) | (D2 & 0x0F);
+		cpu_set_flag(FLAG_ZERO, (regs.A == 0));
+		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		break;
+
+	case 0x28: // JR Z,r8
+		length = 2;
+
+		if(!cpu_get_flag(FLAG_ZERO)) {
+			duration = 8;
+		} else {
+			duration = 12;
+			int8_t i8 = (int8_t)mem_get_byte(regs.PC+1);
+			regs.PC = (uint16_t)((int16_t)regs.PC + (int16_t)i8); // TODO: check if final PC value is right
+		}
+		break;
+
+	case 0x29: // AD HL,HL
+		length = 1;
+		duration = 8;
+		cpu_set_flag(FLAG_SUB, FALSE);
+		// TODO: check if HC flag is managed correctly
+		cpu_set_flag(FLAG_HALF_CARRY, regs.L + regs.L > 0xFF ? TRUE : FALSE);
+		cpu_set_flag(FLAG_CARRY, (uint32_t)cpu_get_HL() + (uint32_t)cpu_get_HL() > 0xFFFF ? TRUE : FALSE);
+		cpu_set_HL( cpu_get_HL() + cpu_get_HL());
+		break;
+
+	case 0x2A: // LD A,(HL+)
+		length = 1;
+		duration = 8;
+		LD_reg_u8(&regs.A, mem_get_byte(cpu_get_HL()));
+		cpu_set_HL(cpu_get_HL()+1);
+		break;
+
+	case 0x2B: // DEC HL
+		length = 1;
+		duration = 8;
+		cpu_set_HL(cpu_get_HL() - 1);
+		break;	
+
+	case 0x2C: // INC L
+		length = 1;
+		duration = 4;
+		INC_u8(&regs.L);
+		break;
+
+	case 0x2D: // DEC L
+		length = 1;
+		duration = 4;	
+		DEC_u8(&regs.L);
+		break;
+
+	case 0x2E: // LD L,d8
+		length = 2;
+		duration = 8;
+		LD_reg_u8(&regs.L, mem_get_byte(regs.PC+1));
+		break;
+
+	case 0x2F: // CP L
+		length = 1;
+		duration = 4;
+		regs.A = ~regs.A;
+		cpu_set_flag(FLAG_SUB, TRUE);
+		cpu_set_flag(FLAG_HALF_CARRY, TRUE);
 		break;
 
 	default:

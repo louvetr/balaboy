@@ -10,7 +10,7 @@ struct opcode_info {
 	uint8_t byte2;
 };
 
-struct opcode_info opcode_dict[33] = {
+struct opcode_info opcode_dict[48] = {
 
 	{.code = 0x00, .name = "NOP", .byte1 = 0x00, .byte2 = 0x00 },
 	{.code = 0x01, .name = "LD BC,d16", .byte1 = 0x21, .byte2 = 0x43 },
@@ -47,6 +47,21 @@ struct opcode_info opcode_dict[33] = {
 	{.code = 0x1F, .name = "RR A", .byte1 = 0x00, .byte2 = 0x00 },
 	
 	{.code = 0x20, .name = "JR NZ,r8", .byte1 = 0xFF, .byte2 = 0x80 },
+	{.code = 0x21, .name = "LD HL,d16", .byte1 = 0x45, .byte2 = 0x67 },
+	{.code = 0x22, .name = "LD (HL+),A", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x23, .name = "INC HL", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x24, .name = "INC H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x25, .name = "DEC H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x26, .name = "LD H,d8", .byte1 = 0x42, .byte2 = 0x00 },
+	{.code = 0x27, .name = "DAA", .byte1 = 0x42, .byte2 = 0x00 },
+	{.code = 0x28, .name = "JR Z,r8", .byte1 = 0xFF, .byte2 = 0x80 },
+	{.code = 0x29, .name = "ADD HL,HL", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x2A, .name = "LD A,(HL+)", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x2B, .name = "DEC HL", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x2C, .name = "INC L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x2D, .name = "DEC L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x2E, .name = "LD L,d8", .byte1 = 0x42, .byte2 = 0x00 },
+	{.code = 0x2F, .name = "CPL", .byte1 = 0x00, .byte2 = 0x00 },
 };
 
 static int cpu_test_opcode(struct opcode_info op_info)
@@ -400,6 +415,147 @@ int testsuite_opcodes()
 	cpu_set_PC(cpu_get_PC() + lg);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0802);
 
+	// 0x21 : LD HL,d16
+	opcode = 0x21;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_HL() == 0x6745);
+
+	// 0x22 : LD (HL+), A
+	opcode = 0x22;
+	cpu_reset_registers();
+	cpu_set_A(0x91);
+	cpu_set_HL(0xFEDA);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()-1) == 0x91 && cpu_get_HL() == 0xFEDB);
+
+	// 0x23 : INC HL
+	opcode = 0x23;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_HL() == 0x0001);
+
+	// 0x24 : INC H
+	opcode = 0x24;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_H() == 0x01);
+	cpu_set_H(0xFF);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_H() == 0x00);
+
+	// 0x25 : DEC H
+	opcode = 0x25;
+	cpu_reset_registers();
+	cpu_set_H(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_H() == 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_H() == 0xFF);
+
+	// 0x26 : LD H,d8
+	opcode = 0x26;
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_H() == 0x42);
+
+	// 0x27 : DAA
+	// examples founds on https://www.tutorialspoint.com/daa-instruction-in-8085-microprocessor
+	opcode = 0x27;
+	cpu_reset_registers();
+	cpu_set_A(0x7D);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x83);
+	cpu_reset_registers();
+	cpu_set_A(0x79);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x79);
+	cpu_reset_registers();
+	cpu_set_A(0xD7);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x37);
+	cpu_reset_registers();
+	cpu_set_A(0xCC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x32);
+	// TODO: check all IF cases from function
+
+	// 0x28: JR Z, r8
+	opcode = 0x28;
+	cpu_reset_registers();
+	cpu_set_PC(0x0800);
+	cpu_set_F(0x80);
+	lg = cpu_test_opcode(opcode_dict[opcode]);
+	cpu_set_PC(cpu_get_PC() + lg);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0801);
+	cpu_reset_registers();
+	cpu_set_PC(0x0800);
+	lg = cpu_test_opcode(opcode_dict[opcode]);
+	cpu_set_PC(cpu_get_PC() + lg);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0802);
+
+	// 0x29: ADD HL,HL
+	opcode = 0x29;
+	cpu_reset_registers();
+	cpu_set_HL(0x1111);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_HL() == 0x2222);
+	// test carry flag
+	cpu_reset_registers();
+	cpu_set_HL(0xF000);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode],
+			      cpu_get_HL() == 0xE000 && cpu_get_F() == 0x10);
+	// test half carry flag
+	cpu_reset_registers();
+	cpu_set_HL(0x00FF);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode],
+			      cpu_get_HL() == 0x01FE && cpu_get_F() == 0x20);
+
+	// 0x2A : LD A, (HL+)
+	opcode = 0x2A;
+	cpu_reset_registers();
+	cpu_set_HL(0xFEDA);
+	mem_set_byte(cpu_get_HL(), 0x33);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x33 && cpu_get_HL() == 0xFEDB);
+
+	// 0x2B: DEC HL
+	opcode = 0x2B;
+	cpu_reset_registers();
+	cpu_set_HL(0x77);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_HL() == 0x76);
+
+	// 0x2C : INC L
+	opcode = 0x2C;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0x01);
+	cpu_set_L(0xFF);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0x00);
+
+	// 0x2D : DEC L
+	opcode = 0x2D;
+	cpu_reset_registers();
+	cpu_set_L(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0xFF);
+
+	// 0x2E : LD L,d8
+	opcode = 0x2E;
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0x42);
+
+	// 0x2F : CPL
+	opcode = 0x2F;
+	cpu_reset_registers();
+	cpu_set_A(0xF0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0F);
 
 	printf("\n\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\n");
 	printf("All OPCODES tests SUCCEED !!!\n");
