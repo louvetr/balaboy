@@ -131,6 +131,40 @@ struct opcode_info opcode_dict[] = {
 	{.code = 0x6E, .name = "LD L,(HL)", .byte1 = 0x00, .byte2 = 0x00 },
 	{.code = 0x6F, .name = "LD L,A", .byte1 = 0x00, .byte2 = 0x00 },
 
+	{.code = 0x70, .name = "LD (HL),B", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x71, .name = "LD (HL),C", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x72, .name = "LD (HL),D", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x73, .name = "LD (HL),E", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x74, .name = "LD (HL),H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x75, .name = "LD (HL),L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x76, .name = "HALT", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x77, .name = "LD (HL),A", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x78, .name = "LD A,B", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x79, .name = "LD A,C", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7A, .name = "LD A,D", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7B, .name = "LD A,E", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7C, .name = "LD A,H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7D, .name = "LD A,L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7E, .name = "LD A,(HL)", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x7F, .name = "LD A,A", .byte1 = 0x00, .byte2 = 0x00 },
+
+	{.code = 0x80, .name = "ADD A,B", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x81, .name = "ADD A,C", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x82, .name = "ADD A,D", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x83, .name = "ADD A,E", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x84, .name = "ADD A,H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x85, .name = "ADD A,L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x86, .name = "ADD A,(HL)", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x87, .name = "ADD A,A", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x88, .name = "ADC A,B", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x89, .name = "ADC A,C", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8A, .name = "ADC A,D", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8B, .name = "ADC A,E", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8C, .name = "ADC A,H", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8D, .name = "ADC A,L", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8E, .name = "ADC A,(HL)", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0x8F, .name = "ADC A,A", .byte1 = 0x00, .byte2 = 0x00 },
+
 };
 
 static int cpu_test_opcode(struct opcode_info op_info)
@@ -1150,6 +1184,401 @@ int testsuite_opcodes()
 	cpu_set_A(0xDC);
 	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_L() == 0xDC);
+
+	// 0x70 : LD (HL),B
+	opcode = 0x70;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_B(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x71 : LD (HL),C
+	opcode = 0x71;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_C(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x72 : LD (HL),D
+	opcode = 0x72;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_D(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x73 : LD (HL),E
+	opcode = 0x73;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_E(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x74 : LD (HL),H
+	opcode = 0x74;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_H(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x75 : LD (HL),L
+	opcode = 0x75;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_L(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x77 : LD (HL),A
+	opcode = 0x77;
+	cpu_reset_registers();
+	cpu_set_HL(0xABD0);
+	cpu_set_A(0xDD);
+	mem_set_byte(cpu_get_HL(), 0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], mem_get_byte(cpu_get_HL()) == 0xDD);
+
+	// 0x78 : LD A,B
+	opcode = 0x78;
+	cpu_reset_registers();
+	cpu_set_B(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x79 : LD A,C
+	opcode = 0x79;
+	cpu_reset_registers();
+	cpu_set_C(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x7A : LD A,D
+	opcode = 0x7A;
+	cpu_reset_registers();
+	cpu_set_D(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x7B : LD A,E
+	opcode = 0x7B;
+	cpu_reset_registers();
+	cpu_set_E(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x7C : LD A,H
+	opcode = 0x7C;
+	cpu_reset_registers();
+	cpu_set_H(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x7D : LD A,L
+	opcode = 0x7D;
+	cpu_reset_registers();
+	cpu_set_L(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x7E : LD A, (HL)
+	opcode = 0x7E;
+	cpu_reset_registers();
+	cpu_set_HL(0xDC12);
+	mem_set_byte(cpu_get_HL(), 0x44);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x44);
+
+	// 0x7F : LD A,A
+	opcode = 0x7F;
+	cpu_reset_registers();
+	cpu_set_A(0xDC);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xDC);
+
+	// 0x80 : ADD A,B
+	opcode = 0x80;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_B(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_B(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_B(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x81 : ADD A,C
+	opcode = 0x81;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_C(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_C(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_C(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x82 : ADD A,D
+	opcode = 0x82;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_D(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_D(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_D(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x83 : ADD A,E
+	opcode = 0x83;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_E(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_E(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_E(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x84 : ADD A,H
+	opcode = 0x84;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_H(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_H(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_H(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x85 : ADD A,L
+	opcode = 0x85;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_L(0x01);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0F);
+	cpu_set_L(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_L(0x01);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x86 : ADD A,(HL)
+	opcode = 0x86;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_HL(0x8525);
+	mem_set_byte(cpu_get_HL(), 0x71);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x7A);
+
+	// 0x87 : ADD A,A
+	opcode = 0x87;
+	cpu_reset_registers();
+	cpu_set_A(0x03);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x06);
+	cpu_set_A(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xFE && cpu_get_F() == 0x30);
+
+	// 0x88 : ADC A,B
+	opcode = 0x88;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_B(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_B(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_B(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x89 : ADC A,C
+	opcode = 0x89;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_C(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_C(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_C(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x8A : ADC A,D
+	opcode = 0x8A;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_D(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_D(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_D(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x8B : ADC A,E
+	opcode = 0x8B;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_E(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_E(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_E(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x8C : ADC A,H
+	opcode = 0x8C;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_H(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_H(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_H(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x8D : ADC A,L
+	opcode = 0x8D;
+	cpu_reset_registers();
+	cpu_set_A(0x08);
+	cpu_set_L(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x0A);
+	cpu_set_A(0x0E);
+	cpu_set_L(0x0F);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFE);
+	cpu_set_L(0x01);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x00 && cpu_get_F() == 0xB0);
+
+	// 0x8E : ADC A,(HL)
+	opcode = 0x8E;
+	cpu_reset_registers();
+	cpu_set_A(0x09);
+	cpu_set_HL(0x8525);
+	mem_set_byte(cpu_get_HL(), 0x71);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x7A);
+
+	// 0x8F : ADC A,A
+	opcode = 0x8F;
+	cpu_reset_registers();
+	cpu_set_A(0x03);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x06);
+	cpu_set_A(0x0F);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x1E && cpu_get_F() == 0x20);
+	cpu_set_A(0xFF);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0xFE && cpu_get_F() == 0x30);
+
+
+
+
+
 
 	printf("\n\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\n");
 	printf("All OPCODES tests SUCCEED !!!\n");

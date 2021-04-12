@@ -61,6 +61,27 @@ static void LD_mem_u16(uint16_t addr, uint16_t src)
 	mem_set_byte(addr + 1, src >> 8);
 }
 
+static void ADD_to_A(uint8_t val_to_add)
+{
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, (regs.A & 0x0F) + (val_to_add & 0x0F) > 0x0F ? TRUE : FALSE);
+	cpu_set_flag(FLAG_CARRY, (uint16_t)regs.A + (uint16_t)val_to_add > 0x00FF ? TRUE : FALSE);
+	regs.A += val_to_add;
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+	// TODO: check HC flag
+}
+
+static void ADC_to_A(uint8_t val_to_add)
+{
+	uint8_t tmp_hc = (regs.A & 0x0F) + (val_to_add & 0x0F) + cpu_get_flag(FLAG_CARRY) > 0x0F ? TRUE : FALSE;
+	uint8_t tmp_h = (uint16_t)regs.A + (uint16_t)val_to_add + (uint16_t)cpu_get_flag(FLAG_CARRY) > 0x00FF ? TRUE : FALSE;
+	regs.A = regs.A + val_to_add + cpu_get_flag(FLAG_CARRY);
+	cpu_set_flag(FLAG_HALF_CARRY, tmp_hc);
+	cpu_set_flag(FLAG_CARRY, tmp_h);
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+	// TODO: check HC flag
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1075,6 +1096,200 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		length = 1;
 		duration = 4;
 		regs.L = regs.A;
+		break;
+
+	// 0x7X ////////////////////////////////////////////////////////////////
+	case 0x70: // LD (HL),B
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.B);
+		break;
+
+	case 0x71: // LD (HL),C
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.C);
+		break;
+
+	case 0x72: // LD (HL),D
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.D);
+		break;
+
+	case 0x73: // LD (HL),E
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.E);
+		break;
+
+	case 0x74: // LD (HL),H
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.H);
+		break;
+
+	case 0x75: // LD (HL),L
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.L);
+		break;
+
+	case 0x76: // HALT
+		length = 1;
+		duration = 4;
+		// TODO: HALT behavior ?
+		break;
+
+	case 0x77: // LD (HL),A
+		length = 1;
+		duration = 8;
+		mem_set_byte(cpu_get_HL(), regs.A);
+		break;
+
+	case 0x78: // LD A,B
+		length = 1;
+		duration = 4;
+		regs.A = regs.B;
+		break;
+
+	case 0x79: // LD A,C
+		length = 1;
+		duration = 4;
+		regs.A = regs.C;
+		break;
+
+	case 0x7A: // LD A,D
+		length = 1;
+		duration = 4;
+		regs.A = regs.D;
+		break;
+
+	case 0x7B: // LD A,E
+		length = 1;
+		duration = 4;
+		regs.A = regs.E;
+		break;
+
+	case 0x7C: // LD A,H
+		length = 1;
+		duration = 4;
+		regs.A = regs.H;
+		break;
+
+	case 0x7D: // LD A,L
+		length = 1;
+		duration = 4;
+		regs.A = regs.L;
+		break;
+
+	case 0x7E: // LD A,(HL)
+		length = 1;
+		duration = 4;
+		regs.A = mem_get_byte(cpu_get_HL());
+		break;
+
+	case 0x7F: // LD A,A
+		length = 1;
+		duration = 4;
+		regs.A = regs.A;
+		break;
+
+	// 0x8X ////////////////////////////////////////////////////////////////
+	case 0x80: // ADD A,B
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.B);
+		break;
+
+	case 0x81: // ADD A,C
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.C);
+		break;
+
+	case 0x82: // ADD A,D
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.D);
+		break;
+
+	case 0x83: // ADD A,E
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.E);
+		break;
+
+	case 0x84: // ADD A,H
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.H);
+		break;
+
+	case 0x85: // ADD A,L
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.L);
+		break;
+
+	case 0x86: // ADD A,(HL)
+		length = 1;
+		duration = 4;
+		ADD_to_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0x87: // ADD A,A
+		length = 1;
+		duration = 4;
+		ADD_to_A(regs.A);
+		break;
+
+	case 0x88: // ADC A,B
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.B);
+		break;
+
+	case 0x89: // ADC A,C
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.C);
+		break;
+
+	case 0x8A: // ADC A,D
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.D);
+		break;
+
+	case 0x8B: // ADC A,E
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.E);
+		break;
+
+	case 0x8C: // ADC A,H
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.H);
+		break;
+
+	case 0x8D: // ADC A,L
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.L);
+		break;
+
+	case 0x8E: // ADC A,(HL)
+		length = 1;
+		duration = 4;
+		ADC_to_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0x8F: // ADC A,A
+		length = 1;
+		duration = 4;
+		ADC_to_A(regs.A);
 		break;
 
 	default:
