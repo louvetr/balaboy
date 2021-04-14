@@ -73,6 +73,7 @@ static void ADD_to_A(uint8_t val_to_add)
 
 static void ADC_to_A(uint8_t val_to_add)
 {
+	cpu_set_flag(FLAG_SUB, FALSE);
 	uint8_t tmp_hc = (regs.A & 0x0F) + (val_to_add & 0x0F) + cpu_get_flag(FLAG_CARRY) > 0x0F ? TRUE : FALSE;
 	uint8_t tmp_h = (uint16_t)regs.A + (uint16_t)val_to_add + (uint16_t)cpu_get_flag(FLAG_CARRY) > 0x00FF ? TRUE : FALSE;
 	regs.A = regs.A + val_to_add + cpu_get_flag(FLAG_CARRY);
@@ -80,6 +81,28 @@ static void ADC_to_A(uint8_t val_to_add)
 	cpu_set_flag(FLAG_CARRY, tmp_h);
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 	// TODO: check HC flag
+}
+
+static void SUB_to_A(uint8_t val_to_sub)
+{
+	cpu_set_flag(FLAG_SUB, TRUE);
+	cpu_set_flag(FLAG_HALF_CARRY, (regs.A & 0x0F) < (val_to_sub & 0x0F) ? TRUE : FALSE);
+	cpu_set_flag(FLAG_CARRY, regs.A < val_to_sub ? TRUE : FALSE);
+	//printf("[SUB] 0x%x - 0x%x = (uint8_t)  0x%x\n", regs.A, val_to_sub, (uint8_t)(regs.A - val_to_sub));
+	regs.A -= val_to_sub;
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+}
+
+static void SBC_to_A(uint8_t val_to_sub)
+{
+	cpu_set_flag(FLAG_SUB, TRUE);
+	uint8_t tmp_hc = (regs.A & 0x0F) < ((val_to_sub & 0x0F) + cpu_get_flag(FLAG_CARRY)) ? TRUE : FALSE;
+	uint8_t tmp_h = regs.A  < (val_to_sub + cpu_get_flag(FLAG_CARRY)) ? TRUE : FALSE;
+	//printf("[SUB] 0x%x - 0x%x - 0x%x = (uint8_t)  0x%x\n", regs.A, val_to_sub, cpu_get_flag(FLAG_CARRY), (uint8_t)(regs.A - val_to_sub));
+	regs.A = regs.A - val_to_sub - cpu_get_flag(FLAG_CARRY);
+	cpu_set_flag(FLAG_HALF_CARRY, tmp_hc);
+	cpu_set_flag(FLAG_CARRY, tmp_h);
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1290,6 +1313,103 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		length = 1;
 		duration = 4;
 		ADC_to_A(regs.A);
+		break;
+
+	// 0x9X ////////////////////////////////////////////////////////////////
+	case 0x90: // SUB A,B
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.B);
+		break;
+
+	case 0x91: // SUB A,C
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.C);
+		break;
+
+	case 0x92: // SUB A,D
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.D);
+		break;
+
+	case 0x93: // SUB A,E
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.E);
+		break;
+
+	case 0x94: // SUB A,H
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.H);
+		break;
+
+	case 0x95: // SUB A,L
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.L);
+		break;
+
+	case 0x96: // SUB A,(HL)
+		length = 1;
+		duration = 4;
+		SUB_to_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0x97: // SUB A,A
+		length = 1;
+		duration = 4;
+		SUB_to_A(regs.A);
+		break;
+
+	case 0x98: // SBC A,B
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.B);
+		break;
+
+	case 0x99: // SBC A,C
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.C);
+		break;
+
+	case 0x9A: // SBC A,D
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.D);
+		break;
+
+	case 0x9B: // SBC A,E
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.E);
+		break;
+
+	case 0x9C: // SBC A,H
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.H);
+		break;
+
+	case 0x9D: // SBC A,L
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.L);
+		break;
+
+	case 0x9E: // SBC A,(HL)
+		length = 1;
+		duration = 4;
+		SBC_to_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0x9F: // SBC A,A
+		length = 1;
+		duration = 4;
+		SBC_to_A(regs.A);
 		break;
 
 	default:
