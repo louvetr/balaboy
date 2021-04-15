@@ -105,6 +105,24 @@ static void SBC_to_A(uint8_t val_to_sub)
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 }
 
+static void AND_with_A(uint8_t val)
+{
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, TRUE);
+	cpu_set_flag(FLAG_CARRY, FALSE);
+	regs.A &= val;
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+}
+
+static void XOR_with_A(uint8_t val)
+{
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, FALSE);
+	regs.A ^= val;
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -869,7 +887,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x46: // LD B,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.B = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -917,7 +935,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x4E: // LD C,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.C = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -966,7 +984,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x56: // LD D,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.D = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -1014,7 +1032,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x5E: // LD E,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.E = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -1063,7 +1081,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x66: // LD D,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.H = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -1111,7 +1129,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x6E: // LD L,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		regs.L = mem_get_byte(cpu_get_HL());
 		break;
 
@@ -1257,7 +1275,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x86: // ADD A,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		ADD_to_A(mem_get_byte(cpu_get_HL()));
 		break;
 
@@ -1305,7 +1323,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x8E: // ADC A,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		ADC_to_A(mem_get_byte(cpu_get_HL()));
 		break;
 
@@ -1354,7 +1372,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x96: // SUB A,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		SUB_to_A(mem_get_byte(cpu_get_HL()));
 		break;
 
@@ -1402,7 +1420,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	case 0x9E: // SBC A,(HL)
 		length = 1;
-		duration = 4;
+		duration = 8;
 		SBC_to_A(mem_get_byte(cpu_get_HL()));
 		break;
 
@@ -1411,6 +1429,110 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 4;
 		SBC_to_A(regs.A);
 		break;
+
+	// 0xAX ////////////////////////////////////////////////////////////////
+	case 0xA0: // AND A,B
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.B);
+		break;
+
+	case 0xA1: // AND A,C
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.C);
+		break;
+
+
+	case 0xA2: // AND A,D
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.D);
+		break;
+
+
+	case 0xA3: // AND A,E
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.E);
+		break;
+
+
+	case 0xA4: // AND A,H
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.H);
+		break;
+
+
+	case 0xA5: // AND A,L
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.L);
+		break;
+
+
+	case 0xA6: // AND A,(HL)
+		length = 1;
+		duration = 8;
+		AND_with_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+
+	case 0xA7: // AND A,A
+		length = 1;
+		duration = 4;
+		AND_with_A(regs.A);
+		break;
+
+	case 0xA8: // XOR A,B
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.B);
+		break;
+
+	case 0xA9: // XOR A,C
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.C);
+		break;
+
+	case 0xAA: // XOR A,D
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.D);
+		break;
+
+	case 0xAB: // XOR A,E
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.E);
+		break;
+
+	case 0xAC: // XOR A,H
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.H);
+		break;
+
+	case 0xAD: // XOR A,L
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.L);
+		break;
+
+	case 0xAE: // XOR A,(HL)
+		length = 1;
+		duration = 8;
+		XOR_with_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0xAF: // XOR A,A
+		length = 1;
+		duration = 4;
+		XOR_with_A(regs.A);
+		break;
+
 
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
