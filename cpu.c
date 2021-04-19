@@ -64,8 +64,12 @@ static void LD_mem_u16(uint16_t addr, uint16_t src)
 static void ADD_to_A(uint8_t val_to_add)
 {
 	cpu_set_flag(FLAG_SUB, FALSE);
-	cpu_set_flag(FLAG_HALF_CARRY, (regs.A & 0x0F) + (val_to_add & 0x0F) > 0x0F ? TRUE : FALSE);
-	cpu_set_flag(FLAG_CARRY, (uint16_t)regs.A + (uint16_t)val_to_add > 0x00FF ? TRUE : FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY,
+		     (regs.A & 0x0F) + (val_to_add & 0x0F) > 0x0F ? TRUE :
+								    FALSE);
+	cpu_set_flag(FLAG_CARRY,
+		     (uint16_t)regs.A + (uint16_t)val_to_add > 0x00FF ? TRUE :
+									FALSE);
 	regs.A += val_to_add;
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 	// TODO: check HC flag
@@ -74,8 +78,17 @@ static void ADD_to_A(uint8_t val_to_add)
 static void ADC_to_A(uint8_t val_to_add)
 {
 	cpu_set_flag(FLAG_SUB, FALSE);
-	uint8_t tmp_hc = (regs.A & 0x0F) + (val_to_add & 0x0F) + cpu_get_flag(FLAG_CARRY) > 0x0F ? TRUE : FALSE;
-	uint8_t tmp_h = (uint16_t)regs.A + (uint16_t)val_to_add + (uint16_t)cpu_get_flag(FLAG_CARRY) > 0x00FF ? TRUE : FALSE;
+	uint8_t tmp_hc = (regs.A & 0x0F) + (val_to_add & 0x0F) +
+						 cpu_get_flag(FLAG_CARRY) >
+					 0x0F ?
+				 TRUE :
+				 FALSE;
+	uint8_t tmp_h =
+		(uint16_t)regs.A + (uint16_t)val_to_add +
+					(uint16_t)cpu_get_flag(FLAG_CARRY) >
+				0x00FF ?
+			TRUE :
+			FALSE;
 	regs.A = regs.A + val_to_add + cpu_get_flag(FLAG_CARRY);
 	cpu_set_flag(FLAG_HALF_CARRY, tmp_hc);
 	cpu_set_flag(FLAG_CARRY, tmp_h);
@@ -86,7 +99,8 @@ static void ADC_to_A(uint8_t val_to_add)
 static void SUB_to_A(uint8_t val_to_sub)
 {
 	cpu_set_flag(FLAG_SUB, TRUE);
-	cpu_set_flag(FLAG_HALF_CARRY, (regs.A & 0x0F) < (val_to_sub & 0x0F) ? TRUE : FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY,
+		     (regs.A & 0x0F) < (val_to_sub & 0x0F) ? TRUE : FALSE);
 	cpu_set_flag(FLAG_CARRY, regs.A < val_to_sub ? TRUE : FALSE);
 	//printf("[SUB] 0x%x - 0x%x = (uint8_t)  0x%x\n", regs.A, val_to_sub, (uint8_t)(regs.A - val_to_sub));
 	regs.A -= val_to_sub;
@@ -96,8 +110,12 @@ static void SUB_to_A(uint8_t val_to_sub)
 static void SBC_to_A(uint8_t val_to_sub)
 {
 	cpu_set_flag(FLAG_SUB, TRUE);
-	uint8_t tmp_hc = (regs.A & 0x0F) < ((val_to_sub & 0x0F) + cpu_get_flag(FLAG_CARRY)) ? TRUE : FALSE;
-	uint8_t tmp_h = regs.A  < (val_to_sub + cpu_get_flag(FLAG_CARRY)) ? TRUE : FALSE;
+	uint8_t tmp_hc = (regs.A & 0x0F) < ((val_to_sub & 0x0F) +
+					    cpu_get_flag(FLAG_CARRY)) ?
+				 TRUE :
+				 FALSE;
+	uint8_t tmp_h =
+		regs.A < (val_to_sub + cpu_get_flag(FLAG_CARRY)) ? TRUE : FALSE;
 	//printf("[SUB] 0x%x - 0x%x - 0x%x = (uint8_t)  0x%x\n", regs.A, val_to_sub, cpu_get_flag(FLAG_CARRY), (uint8_t)(regs.A - val_to_sub));
 	regs.A = regs.A - val_to_sub - cpu_get_flag(FLAG_CARRY);
 	cpu_set_flag(FLAG_HALF_CARRY, tmp_hc);
@@ -121,6 +139,23 @@ static void XOR_with_A(uint8_t val)
 	cpu_set_flag(FLAG_CARRY, FALSE);
 	regs.A ^= val;
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+}
+
+static void OR_with_A(uint8_t val)
+{
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, FALSE);
+	regs.A |= val;
+	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
+}
+
+static void CP_with_A(uint8_t val)
+{
+	cpu_set_flag(FLAG_SUB, TRUE);
+	cpu_set_flag(FLAG_HALF_CARRY, (regs.A & 0x0F) < (val & 0x0F) ? TRUE : FALSE);
+	cpu_set_flag(FLAG_CARRY, regs.A < val ? TRUE : FALSE);
+	cpu_set_flag(FLAG_ZERO, regs.A == val ? TRUE : FALSE);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1443,13 +1478,11 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		AND_with_A(regs.C);
 		break;
 
-
 	case 0xA2: // AND A,D
 		length = 1;
 		duration = 4;
 		AND_with_A(regs.D);
 		break;
-
 
 	case 0xA3: // AND A,E
 		length = 1;
@@ -1457,13 +1490,11 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		AND_with_A(regs.E);
 		break;
 
-
 	case 0xA4: // AND A,H
 		length = 1;
 		duration = 4;
 		AND_with_A(regs.H);
 		break;
-
 
 	case 0xA5: // AND A,L
 		length = 1;
@@ -1471,13 +1502,11 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		AND_with_A(regs.L);
 		break;
 
-
 	case 0xA6: // AND A,(HL)
 		length = 1;
 		duration = 8;
 		AND_with_A(mem_get_byte(cpu_get_HL()));
 		break;
-
 
 	case 0xA7: // AND A,A
 		length = 1;
@@ -1533,6 +1562,102 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		XOR_with_A(regs.A);
 		break;
 
+	// 0xBX ////////////////////////////////////////////////////////////////
+	case 0xB0: // OR A,B
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.B);
+		break;
+
+	case 0xB1: // OR A,C
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.C);
+		break;
+
+	case 0xB2: // OR A,D
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.D);
+		break;
+
+	case 0xB3: // OR A,E
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.E);
+		break;
+
+	case 0xB4: // OR A,H
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.H);
+		break;
+
+	case 0xB5: // OR A,L
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.L);
+		break;
+
+	case 0xB6: // OR A,(HL)
+		length = 1;
+		duration = 8;
+		OR_with_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0xB7: // OR A,A
+		length = 1;
+		duration = 4;
+		OR_with_A(regs.A);
+		break;
+
+	case 0xB8: // XOR A,B
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.B);
+		break;
+
+	case 0xB9: // CP A,C
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.C);
+		break;
+
+	case 0xBA: // CP A,D
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.D);
+		break;
+
+	case 0xBB: // CP A,E
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.E);
+		break;
+
+	case 0xBC: // CP A,H
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.H);
+		break;
+
+	case 0xBD: // CP A,L
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.L);
+		break;
+
+	case 0xBE: // CP A,(HL)
+		length = 1;
+		duration = 8;
+		CP_with_A(mem_get_byte(cpu_get_HL()));
+		break;
+
+	case 0xBF: // CP A,A
+		length = 1;
+		duration = 4;
+		CP_with_A(regs.A);
+		break;
 
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
