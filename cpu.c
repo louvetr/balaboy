@@ -158,6 +158,19 @@ static void CP_with_A(uint8_t val)
 	cpu_set_flag(FLAG_ZERO, regs.A == val ? TRUE : FALSE);
 }
 
+static uint16_t SP_pop(){
+	uint16_t tmp_u16 = mem_get_byte(regs.SP + 1) << 8 |
+	       			   mem_get_byte(regs.SP);
+	cpu_set_SP(cpu_get_SP()+2);
+	return tmp_u16;
+}
+
+static void SP_push(uint16_t val){
+	cpu_set_SP(cpu_get_SP()-2);
+	LD_mem_u16(cpu_get_SP(), val);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1657,6 +1670,140 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		length = 1;
 		duration = 4;
 		CP_with_A(regs.A);
+		break;
+
+	// 0xCX ////////////////////////////////////////////////////////////////
+	case 0xC0: // RET NZ
+		length = 1;
+		if(cpu_get_flag(FLAG_ZERO) == FALSE) {
+			duration = 20;
+			// TODO: not sure is POP is needed
+			cpu_set_PC(SP_pop());
+		}
+		else {
+			duration = 8;
+		}
+		break;
+
+	case 0xC1: // POP BC
+		length = 1;
+		duration = 12;
+		cpu_set_BC(SP_pop());
+		break;
+
+	case 0xC2: // JP NZ,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_ZERO) == FALSE) {
+			duration = 16;
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xC3: // JP a16
+		length = 3;
+		duration = 16;
+		cpu_set_PC(u16);
+		break;
+
+	case 0xC4: // CALL NZ,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_ZERO) == FALSE) {
+			duration = 24;
+			SP_push(cpu_get_PC());
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xC5: // PUSH BC
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_BC());
+		break;
+
+	case 0xC6: // ADD A,d8
+		length = 2;
+		duration = 8;
+		ADD_to_A(mem_get_byte(regs.PC + 1));
+		break;
+
+	case 0xC7: // RST 00H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0000);
+		break;
+
+	case 0xC8: // RET Z
+		length = 1;
+		if(cpu_get_flag(FLAG_ZERO) == TRUE) {
+			duration = 20;
+			// TODO: not sure is POP is needed
+			cpu_set_PC(SP_pop());
+		}
+		else {
+			duration = 8;
+		}
+		break;
+
+	case 0xC9: // RET
+		length = 1;
+		duration = 16;
+		// TODO: not sure is POP is needed
+		cpu_set_PC(SP_pop());
+		break;
+
+	case 0xCA: // JP Z,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_ZERO) == TRUE) {
+			duration = 16;
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xCB: // PREFIX CB => TODO
+		length = 1;
+		duration = 4;
+		break;
+
+	case 0xCC: // CALL Z,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_ZERO) == TRUE) {
+			duration = 24;
+			SP_push(cpu_get_PC());
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xCD: // CALL a16
+		length = 3;
+		duration = 24;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(u16);
+		break;
+
+	case 0xCE: // ADC A,d8
+		length = 2;
+		duration = 8;
+		ADC_to_A(mem_get_byte(regs.PC + 1));
+		break;
+
+	case 0xCF: // RST 08H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0008);
 		break;
 
 	default:

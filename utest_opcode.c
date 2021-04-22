@@ -216,6 +216,25 @@ struct opcode_info opcode_dict[] = {
 	{.code = 0xBE, .name = "CP A,(HL)", .byte1 = 0x00, .byte2 = 0x00 },
 	{.code = 0xBF, .name = "CP A,A", .byte1 = 0x00, .byte2 = 0x00 },
 
+	{.code = 0xC0, .name = "RET NZ", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xC1, .name = "POP BC", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xC2, .name = "JP NZ,a16", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xC3, .name = "JP a16", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xC4, .name = "CALL NZ,a16", .byte1 = 0x54, .byte2 = 0x76 },
+	{.code = 0xC5, .name = "PUSH BC", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xC6, .name = "ADD A,d8", .byte1 = 0x33, .byte2 = 0x00 },
+	{.code = 0xC7, .name = "RST 00h", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xC8, .name = "RET Z", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xC9, .name = "RET", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xCA, .name = "JP Z,a16", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xCB, .name = "PREFIX CB", .byte1 = 0x43, .byte2 = 0x65 }, // STUB
+	{.code = 0xCC, .name = "CALL Z,a16", .byte1 = 0x54, .byte2 = 0x76 },
+	{.code = 0xCD, .name = "CALL a16", .byte1 = 0x54, .byte2 = 0x76 },
+	{.code = 0xCE, .name = "ADC A,d8", .byte1 = 0x33, .byte2 = 0x00 },
+	{.code = 0xCF, .name = "RST 08h", .byte1 = 0x00, .byte2 = 0x00 },
+
+
+
 };
 
 static int cpu_test_opcode(struct opcode_info op_info)
@@ -2246,6 +2265,154 @@ int testsuite_opcodes()
 	cpu_test_opcode(opcode_dict[opcode]);
 	cpu_print_test_result(opcode_dict[opcode], cpu_get_F() == 0xC0);
 
+	// 0xC0 : RT NZ
+	opcode = 0xC0;
+	cpu_reset_registers();
+	cpu_set_F(0x80);
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x5432 && cpu_get_SP() == 0x0FFE);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+
+	// 0xC1 : POP BC
+	opcode = 0xC1;
+	cpu_reset_registers();
+	cpu_set_SP(0x0FFE);
+	mem_set_byte(cpu_get_SP(), 0x21);
+	mem_set_byte(cpu_get_SP()+1, 0x43);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_BC() == 0x4321 && cpu_get_SP() == 0x1000);
+
+	// 0xC2 : JP NZ,a16
+	opcode = 0xC2;
+	cpu_reset_registers();
+	cpu_set_F(0x80);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0000);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x6543);
+
+	// 0xC3 : JP a16
+	opcode = 0xC3;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x6543);
+
+	// 0xC4 : CALL NZ,a16
+	opcode = 0xC4;
+	cpu_reset_registers();
+	cpu_set_F(0x80);
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xABCD);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xABCD && cpu_get_SP() == 0x1000);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x7654 && cpu_get_SP() == 0x0FFE);
+
+	// 0xC5 : PUSH BC
+	opcode = 0xC5;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_BC(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
+
+	// 0xC6 : ADD A,d8
+	opcode = 0xC6;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x33);
+
+	// 0xC7 : RST 00h
+	opcode = 0xC7;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE && cpu_get_PC() == 0x0000);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
+
+	// 0xC8 : RET Z
+	opcode = 0xC8;
+	cpu_reset_registers();
+	cpu_set_F(0x00);
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x5432 && cpu_get_SP() == 0x0FFE);
+	cpu_set_F(0x80);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+	
+	// 0xC9 : RET
+	opcode = 0xC9;
+	cpu_reset_registers();
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+
+	// 0xCA : JP Z,a16
+	opcode = 0xCA;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0000);
+	cpu_set_F(0x80);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x6543);
+
+	// 0xCC : CALL Z,a16
+	opcode = 0xCC;
+	cpu_reset_registers();
+	cpu_set_F(0x00);
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xABCD);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xABCD && cpu_get_SP() == 0x1000);
+	cpu_set_F(0x80);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x7654 && cpu_get_SP() == 0x0FFE);
+
+	// 0xCD : CALL a16
+	opcode = 0xCD;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xABCD);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x7654 && cpu_get_SP() == 0x0FFE);
+
+	// 0xCE : ADC A,d8
+	opcode = 0xCE;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x33);
+
+	// 0xCF : RST 08h
+	opcode = 0xCF;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE && cpu_get_PC() == 0x0008);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
 
 
 
