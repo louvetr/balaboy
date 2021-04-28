@@ -233,6 +233,22 @@ struct opcode_info opcode_dict[] = {
 	{.code = 0xCE, .name = "ADC A,d8", .byte1 = 0x33, .byte2 = 0x00 },
 	{.code = 0xCF, .name = "RST 08h", .byte1 = 0x00, .byte2 = 0x00 },
 
+	{.code = 0xD0, .name = "RET NC", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xD1, .name = "POP DE", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xD2, .name = "JP NC,a16", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xD3, .name = "NA", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xD4, .name = "CALL NC,a16", .byte1 = 0x54, .byte2 = 0x76 },
+	{.code = 0xD5, .name = "PUSH DE", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xD6, .name = "SUB A,d8", .byte1 = 0x33, .byte2 = 0x00 },
+	{.code = 0xD7, .name = "RST 10h", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xD8, .name = "RET C", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xD9, .name = "RETI", .byte1 = 0x00, .byte2 = 0x00 },
+	{.code = 0xDA, .name = "JP C,a16", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xDB, .name = "NA", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xDC, .name = "CALL C,a16", .byte1 = 0x54, .byte2 = 0x76 },
+	{.code = 0xDD, .name = "NA", .byte1 = 0x43, .byte2 = 0x65 },
+	{.code = 0xDE, .name = "SBC A,d8", .byte1 = 0x33, .byte2 = 0x00 },
+	{.code = 0xDF, .name = "RST 18h", .byte1 = 0x00, .byte2 = 0x00 },
 
 
 };
@@ -2414,6 +2430,142 @@ int testsuite_opcodes()
 		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
 	}
 
+	// 0xD0 : RET NC
+	opcode = 0xD0;
+	cpu_reset_registers();
+	cpu_set_F(0x10);
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x5432 && cpu_get_SP() == 0x0FFE);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+
+	// 0xD1 : POP DE
+	opcode = 0xD1;
+	cpu_reset_registers();
+	cpu_set_SP(0x0FFE);
+	mem_set_byte(cpu_get_SP(), 0x21);
+	mem_set_byte(cpu_get_SP()+1, 0x43);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_DE() == 0x4321 && cpu_get_SP() == 0x1000);
+
+	// 0xD2 : JP NC,a16
+	opcode = 0xD2;
+	cpu_reset_registers();
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0000);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x6543);
+
+	// 0xD4 : CALL NC,a16
+	opcode = 0xD4;
+	cpu_reset_registers();
+	cpu_set_F(0x10);
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xABCD);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xABCD && cpu_get_SP() == 0x1000);
+	cpu_set_F(0x00);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x7654 && cpu_get_SP() == 0x0FFE);
+
+	// 0xD5 : PUSH DE
+	opcode = 0xD5;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_DE(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
+
+	// 0xD6 : ADD A,d8
+	opcode = 0xD6;
+	cpu_reset_registers();
+	cpu_set_A(0x44);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x11);
+
+	// 0xD7 : RST 10h
+	opcode = 0xD7;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE && cpu_get_PC() == 0x0010);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
+
+	// 0xD8 : RET C
+	opcode = 0xD8;
+	cpu_reset_registers();
+	cpu_set_F(0x00);
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x5432 && cpu_get_SP() == 0x0FFE);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+	
+	// 0xD9 : RETI
+	opcode = 0xD9;
+	cpu_reset_registers();
+	cpu_set_SP(0x0FFE);
+	cpu_set_PC(0x5432);
+	mem_set_byte(cpu_get_SP(), 0xCA);
+	mem_set_byte(cpu_get_SP()+1, 0xDB);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xDBCA && cpu_get_SP() == 0x1000);
+
+	// 0xDA : JP C,a16
+	opcode = 0xDA;
+	cpu_reset_registers();
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x0000);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x6543);
+
+	// 0xDC : CALL C,a16
+	opcode = 0xDC;
+	cpu_reset_registers();
+	cpu_set_F(0x00);
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xABCD);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0xABCD && cpu_get_SP() == 0x1000);
+	cpu_set_F(0x10);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_PC() == 0x7654 && cpu_get_SP() == 0x0FFE);
+
+	// 0xDE : SDC A,d8
+	opcode = 0xDE;
+	cpu_reset_registers();
+	cpu_set_A(0x44);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_A() == 0x11);
+
+	// 0xCF : RST 18h
+	opcode = 0xDF;
+	cpu_reset_registers();
+	cpu_set_SP(0x1000);
+	cpu_set_PC(0xD1D0);
+	cpu_test_opcode(opcode_dict[opcode]);
+	cpu_print_test_result(opcode_dict[opcode], cpu_get_SP() == 0x0FFE && cpu_get_PC() == 0x0018);
+	if(mem_get_byte(cpu_get_SP()) != 0xD0 || mem_get_byte(cpu_get_SP()+1) != 0xD1) {
+		printf("unexpected memory configuration for instruction 0x%x\n", opcode);
+	}
 
 
 	printf("\n\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\n");

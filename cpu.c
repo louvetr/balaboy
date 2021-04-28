@@ -24,6 +24,8 @@ struct cpu_registers {
 // This struct var has to be reach externally via getter and setter funcions
 static struct cpu_registers regs;
 
+static uint8_t	cpu_interrupts_enabled = 1;
+
 /////////////////////////////////////////////////////////////////////////////////////
 // private functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1806,10 +1808,129 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		cpu_set_PC(0x0008);
 		break;
 
+	// 0xDX ////////////////////////////////////////////////////////////////
+	case 0xD0: // RET NC
+		length = 1;
+		if(cpu_get_flag(FLAG_CARRY) == FALSE) {
+			duration = 20;
+			// TODO: not sure is POP is needed
+			cpu_set_PC(SP_pop());
+		}
+		else {
+			duration = 8;
+		}
+		break;
+
+	case 0xD1: // POP DE
+		length = 1;
+		duration = 12;
+		cpu_set_DE(SP_pop());
+		break;
+
+	case 0xD2: // JP NC,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_CARRY) == FALSE) {
+			duration = 16;
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xD4: // CALL NC,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_CARRY) == FALSE) {
+			duration = 24;
+			SP_push(cpu_get_PC());
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xD5: // PUSH d8
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_DE());
+		break;
+
+	case 0xD6: // SUB A,d8
+		length = 2;
+		duration = 8;
+		SUB_to_A(u8);
+		break;
+
+	case 0xD7: // RST 10H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0010);
+		break;
+
+	case 0xD8: // RET C
+		length = 1;
+		if(cpu_get_flag(FLAG_CARRY) == TRUE) {
+			duration = 20;
+			// TODO: not sure is POP is needed
+			cpu_set_PC(SP_pop());
+		}
+		else {
+			duration = 8;
+		}
+		break;
+
+	case 0xD9: // RETI
+		length = 1;
+		duration = 16;
+		// TODO: not sure is POP is needed
+		cpu_set_PC(SP_pop());
+		cpu_interrupts_enabled = 1;
+		break;
+
+	case 0xDA: // JP C,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_CARRY) == TRUE) {
+			duration = 16;
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xDC: // CALL C,a16
+		length = 3;
+		if(cpu_get_flag(FLAG_CARRY) == TRUE) {
+			duration = 24;
+			SP_push(cpu_get_PC());
+			cpu_set_PC(u16);
+		}
+		else {
+			duration = 12;
+		}
+		break;
+
+	case 0xDE: // SDC A,d8
+		length = 2;
+		duration = 8;
+		SBC_to_A(mem_get_byte(regs.PC + 1));
+		break;
+
+	case 0xDF: // RST 18H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0018);
+		break;
+
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
 		       __LINE__, opcode);
 	}
+
+
 
 	// TOOD: wait cycles here ?
 
