@@ -368,6 +368,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		       u8; // OP B1 B2 => B1 is LSB, B2 is MSB
 
 	uint32_t u32 = 0;
+	int8_t r8;
 
 	switch (opcode) {
 	// 0x0X ////////////////////////////////////////////////////////////////
@@ -1850,7 +1851,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		}
 		break;
 
-	case 0xD5: // PUSH d8
+	case 0xD5: // PUSH DE
 		length = 1;
 		duration = 16;
 		SP_push(cpu_get_DE());
@@ -1924,6 +1925,186 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0018);
 		break;
+
+	// 0xEX ////////////////////////////////////////////////////////////////
+	case 0xE0: // LDH (a8),A
+		length = 2;
+		duration = 12;
+		mem_set_byte(0xFF00 + u8, regs.A);
+		break;
+
+	case 0xE1: // POP HL
+		length = 1;
+		duration = 12;
+		cpu_set_HL(SP_pop());
+		break;
+
+	case 0xE2: // LD (C),A
+		length = 2;
+		duration = 8;
+		LD_mem_u8(0xFF00 + cpu_get_C(), regs.A);
+		break;
+
+	case 0xE5: // PUSH HL
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_HL());
+		break;
+
+	case 0xE6: // AND d8
+		length = 2;
+		duration = 8;
+		AND_with_A(u8);
+		break;
+
+	case 0xE7: // RST 20H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0020);
+		break;
+
+	case 0xE8: // ADD SP,r8
+		length = 2;
+		duration = 16;
+
+		r8 = (int8_t) u8;
+
+		cpu_set_SP((uint16_t)(cpu_get_SP() + (int16_t)r8));
+
+		cpu_set_flag(FLAG_ZERO, FALSE);
+		cpu_set_flag(FLAG_SUB, FALSE);
+
+		// TODO: test carry corncases
+		cpu_set_flag(FLAG_HALF_CARRY,
+		     (regs.SP & 0x0FFF) + r8 > 0x0FFF ? TRUE : FALSE);
+
+		cpu_set_flag(FLAG_CARRY,
+		     (regs.SP & 0xFFFF) + r8 > 0xFFFF ? TRUE : FALSE);
+
+		break;
+
+	case 0xE9: // JP (HL)
+		length = 1;
+		duration = 4;
+		cpu_set_PC(cpu_get_HL());
+		break;
+
+	case 0xEA: // LD (a16),A
+		length = 3;
+		duration = 16;
+		LD_mem_u16(u16, regs.A);
+		break;
+
+	case 0xEE: // XOR d8
+		length = 2;
+		duration = 8;
+		XOR_with_A(u16);
+		break;
+
+	case 0xEF: // RST 28H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0028);
+		break;
+
+	// 0xFX ////////////////////////////////////////////////////////////////
+	case 0xF0: // LDH A,(a8)
+		length = 2;
+		duration = 12;
+		regs.A = mem_get_byte(0xFF00 | u8);
+		break;
+
+	case 0xF1: // POP AF
+		length = 1;
+		duration = 12;
+		cpu_set_AF(SP_pop());
+		/*cpu_set_flag(FLAG_ZERO, TRUE);
+		cpu_set_flag(FLAG_SUB, TRUE);
+		cpu_set_flag(FLAG_HALF_CARRY, TRUE);
+		cpu_set_flag(FLAG_CARRY, TRUE);*/
+		break;
+
+	case 0xF2: // LD (C),A
+		length = 2;
+		duration = 8;
+		regs.A = mem_get_byte(0xFF00 + cpu_get_C());
+		break;
+
+	case 0xF3: // DI
+		length = 1;
+		duration = 4;
+		cpu_interrupts_enabled = 0;
+		break;
+
+	case 0xF5: // PUSH AF
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_AF());
+		break;
+
+	case 0xF6: // OR d8
+		length = 2;
+		duration = 8;
+		OR_with_A(u8);
+		break;
+
+	case 0xF7: // RST 30H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0030);
+		break;
+
+	case 0xF8: // LD HL,SP+r8
+		length = 2;
+		duration = 12;
+		r8 = (int8_t) u8;
+		cpu_set_flag(FLAG_ZERO, FALSE);
+		cpu_set_flag(FLAG_SUB, FALSE);
+		
+		// TODO: test carry corner cases
+		cpu_set_flag(FLAG_HALF_CARRY,
+		     (regs.SP & 0x0FFF) + r8 > 0x0FFF ? TRUE : FALSE);
+		cpu_set_flag(FLAG_CARRY,
+		     (regs.SP & 0xFFFF) + r8 > 0xFFFF ? TRUE : FALSE);
+		
+		cpu_set_HL(cpu_get_SP() + (int8_t)u8);
+		break;
+
+	case 0xF9: // LD SP,HL
+		length = 1;
+		duration = 8;
+		cpu_set_SP(cpu_get_HL());
+		break;
+
+	case 0xFA: // LD A,(a16)
+		length = 3;
+		duration = 16;
+		regs.A = mem_get_byte(u16);
+		break;
+
+	case 0xFB: // EI
+		length = 1;
+		duration = 4;
+		cpu_interrupts_enabled = 1;
+		break;
+
+	case 0xFE: // CP d8
+		length = 2;
+		duration = 8;
+		CP_with_A(u8);
+		break;
+
+	case 0xFF: // RST 38H
+		length = 1;
+		duration = 16;
+		SP_push(cpu_get_PC());
+		cpu_set_PC(0x0038);
+		break;
+
+
 
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
