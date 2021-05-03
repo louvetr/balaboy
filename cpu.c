@@ -26,6 +26,8 @@ static struct cpu_registers regs;
 
 static uint8_t	cpu_interrupts_enabled = 1;
 
+static uint8_t cpu_exec_opcode_CB(uint8_t opcode);
+
 /////////////////////////////////////////////////////////////////////////////////////
 // private functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +174,39 @@ static void SP_push(uint16_t val){
 	LD_mem_u16(cpu_get_SP(), val);
 }
 
+static void RLC(uint8_t *dst){
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, *dst >> 7);
+	*dst = *dst << 1;
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+}
+
+static void RRC(uint8_t *dst){
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, *dst & 0x01);
+	*dst = *dst >> 1;
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+}
+
+static void RL(uint8_t *dst){
+	uint8_t tmp_carry = *dst >> 7;
+	*dst = (*dst << 1) | cpu_get_flag(FLAG_CARRY);
+	cpu_set_flag(FLAG_CARRY, tmp_carry);
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+}
+
+static void RR(uint8_t *dst){
+	uint8_t tmp_carry = *dst & 0x01;
+	*dst = *dst >> 1 | cpu_get_flag(FLAG_CARRY) << 7;
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, tmp_carry);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
@@ -369,6 +404,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 
 	uint32_t u32 = 0;
 	int8_t r8;
+	uint8_t tmp_carry;
 
 	switch (opcode) {
 	// 0x0X ////////////////////////////////////////////////////////////////
@@ -530,8 +566,9 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x17: // RL A
 		length = 1;
 		duration = 4;
+		tmp_carry = regs.A >> 7;
 		regs.A = (regs.A << 1) | cpu_get_flag(FLAG_CARRY);
-		cpu_set_flag(FLAG_CARRY, regs.A & 0x80 ? TRUE : FALSE);
+		cpu_set_flag(FLAG_CARRY, tmp_carry);
 		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 		cpu_set_flag(FLAG_SUB, FALSE);
 		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
@@ -1773,8 +1810,9 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		break;
 
 	case 0xCB: // PREFIX CB => TODO
-		length = 1;
-		duration = 4;
+		length = 2;
+		duration = 8;	// TODO: adjust for some CB instruction which are 16
+		cpu_exec_opcode_CB(mem_get_byte(regs.PC + 1));
 		break;
 
 	case 0xCC: // CALL Z,a16
@@ -2120,4 +2158,154 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		       __func__, __LINE__);
 
 	return length;
+}
+
+static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
+{
+	uint8_t u8;
+
+	switch (opcode) {
+	// 0x0X ////////////////////////////////////////////////////////////////
+	case 0x00: // RLC B
+		RLC(&regs.B);
+		break;
+
+	case 0x01: // RLC C
+		RLC(&regs.C);
+		break;
+
+	case 0x02: // RLC D
+		RLC(&regs.D);
+		break;
+
+	case 0x03: // RLC E
+		RLC(&regs.E);
+		break;
+
+	case 0x04: // RLC H
+		RLC(&regs.H);
+		break;
+
+	case 0x05: // RLC L
+		RLC(&regs.L);
+		break;
+
+	case 0x06: // RLC (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		RLC(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x07: // RLC A
+		RLC(&regs.A);
+		break;
+
+	case 0x08: // RRC B
+		RRC(&regs.B);
+		break;
+
+	case 0x09: // RRC C
+		RRC(&regs.C);
+		break;
+
+	case 0x0A: // RRC D
+		RRC(&regs.D);
+		break;
+
+	case 0x0B: // RRC E
+		RRC(&regs.E);
+		break;
+
+	case 0x0C: // RRC H
+		RRC(&regs.H);
+		break;
+
+	case 0x0D: // RRC L
+		RRC(&regs.L);
+		break;
+
+	case 0x0E: // RRC (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		RRC(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x0F: // RRC A
+		RRC(&regs.A);
+		break;		
+
+	// 0x1X ////////////////////////////////////////////////////////////////
+	case 0x10: // RL B
+		RL(&regs.B);
+		break;
+
+	case 0x11: // RL C
+		RL(&regs.C);
+		break;
+
+	case 0x12: // RL D
+		RL(&regs.D);
+		break;
+
+	case 0x13: // RL E
+		RL(&regs.E);
+		break;
+
+	case 0x14: // RL H
+		RL(&regs.H);
+		break;
+
+	case 0x15: // RL L
+		RL(&regs.L);
+		break;
+
+	case 0x16: // RL (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		RL(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x17: // RL A
+		RL(&regs.A);
+		break;
+
+	case 0x18: // RR B
+		RR(&regs.B);
+		break;
+
+	case 0x19: // RR C
+		RR(&regs.C);
+		break;
+
+	case 0x1A: // RR D
+		RR(&regs.D);
+		break;
+
+	case 0x1B: // RR E
+		RR(&regs.E);
+		break;
+
+	case 0x1C: // RR H
+		RR(&regs.H);
+		break;
+
+	case 0x1D: // RR L
+		RR(&regs.L);
+		break;
+
+	case 0x1E: // RR (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		RR(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x1F: // RR A
+		RR(&regs.A);
+		break;	
+
+	default:
+		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
+		    __LINE__, opcode);
+		break;
+	}
 }
