@@ -178,7 +178,7 @@ static void RLC(uint8_t *dst){
 	cpu_set_flag(FLAG_SUB, FALSE);
 	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
 	cpu_set_flag(FLAG_CARRY, *dst >> 7);
-	*dst = *dst << 1;
+	*dst = *dst << 1 | *dst >> 7;
 	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
 }
 
@@ -186,7 +186,7 @@ static void RRC(uint8_t *dst){
 	cpu_set_flag(FLAG_SUB, FALSE);
 	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
 	cpu_set_flag(FLAG_CARRY, *dst & 0x01);
-	*dst = *dst >> 1;
+	*dst = *dst >> 1 | *dst << 7;
 	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
 }
 
@@ -207,6 +207,44 @@ static void RR(uint8_t *dst){
 	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
 	cpu_set_flag(FLAG_CARRY, tmp_carry);
 }
+
+static void SLA(uint8_t *dst){
+	uint8_t tmp_carry = *dst >> 7;
+	*dst = (*dst << 1);
+	cpu_set_flag(FLAG_CARRY, tmp_carry);
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+}
+
+static void SRA(uint8_t *dst){
+	uint8_t tmp_carry = *dst & 0x01;
+	*dst = (*dst >> 1) | (*dst & 0x80);
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, tmp_carry);
+}
+
+static void SRL(uint8_t *dst){
+	uint8_t tmp_carry = *dst & 0x01;
+	*dst = (*dst >> 1);
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, tmp_carry);
+}
+
+static void SWAP(uint8_t *dst){
+	uint8_t p1 = (*dst & 0x0F) << 4;
+	uint8_t p2 = *dst >> 4;
+	*dst = p1 | p2;
+	cpu_set_flag(FLAG_ZERO, *dst == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+	cpu_set_flag(FLAG_CARRY, FALSE);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
@@ -452,11 +490,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x07: // RLC A
 		length = 1;
 		duration = 4;
-		regs.A = (regs.A << 1) | (regs.A >> 7);
-		cpu_set_flag(FLAG_CARRY, regs.A & 0x80 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, FALSE);
-		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		RLC(&regs.A);
 		break;
 
 	case 0x08: // LD (a16),SP
@@ -512,12 +546,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x0F: // RRC A
 		length = 1;
 		duration = 4;
-		cpu_set_flag(FLAG_CARRY, regs.A & 0x01);
-		regs.A = regs.A >> 1 | (regs.A & 0x01) << 7;
-		// TODO: force ZERO flag to FALSE ?
-		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, FALSE);
-		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		RRC(&regs.A);
 		break;
 
 	// 0x1X ////////////////////////////////////////////////////////////////
@@ -566,12 +595,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x17: // RL A
 		length = 1;
 		duration = 4;
-		tmp_carry = regs.A >> 7;
-		regs.A = (regs.A << 1) | cpu_get_flag(FLAG_CARRY);
-		cpu_set_flag(FLAG_CARRY, tmp_carry);
-		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, FALSE);
-		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
+		RL(&regs.A);
 		break;
 
 	case 0x18: // JR r8
@@ -636,12 +660,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0x1F: // RR A
 		length = 1;
 		duration = 4;
-		uint8_t tmp_carry = regs.A & 0x01;
-		regs.A = regs.A >> 1 | cpu_get_flag(FLAG_CARRY) << 7;
-		cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
-		cpu_set_flag(FLAG_SUB, FALSE);
-		cpu_set_flag(FLAG_HALF_CARRY, FALSE);
-		cpu_set_flag(FLAG_CARRY, tmp_carry);
+		RR(&regs.A);
 		break;
 
 	// 0x2X ////////////////////////////////////////////////////////////////
@@ -2301,6 +2320,144 @@ static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
 
 	case 0x1F: // RR A
 		RR(&regs.A);
+		break;	
+
+	// 0x2X ////////////////////////////////////////////////////////////////
+	case 0x20: // SLA B
+		SLA(&regs.B);
+		break;
+
+	case 0x21: // SLA C
+		SLA(&regs.C);
+		break;
+
+	case 0x22: // SLA D
+		SLA(&regs.D);
+		break;
+
+	case 0x23: // SLA E
+		SLA(&regs.E);
+		break;
+
+	case 0x24: // SLA H
+		SLA(&regs.H);
+		break;
+
+	case 0x25: // SLA L
+		SLA(&regs.L);
+		break;
+
+	case 0x26: // SLA (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		SLA(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x27: // SLA A
+		SLA(&regs.A);
+		break;
+
+	case 0x28: // SRA B
+		SRA(&regs.B);
+		break;
+
+	case 0x29: // SRA C
+		SRA(&regs.C);
+		break;
+
+	case 0x2A: // SRA D
+		SRA(&regs.D);
+		break;
+
+	case 0x2B: // SRA E
+		SRA(&regs.E);
+		break;
+
+	case 0x2C: // SRA H
+		SRA(&regs.H);
+		break;
+
+	case 0x2D: // SRA L
+		SRA(&regs.L);
+		break;
+
+	case 0x2E: // SRA (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		SRA(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x2F: // SRA A
+		SRA(&regs.A);
+		break;	
+
+	// 0x3X ////////////////////////////////////////////////////////////////
+	case 0x30: // SWAP B
+		SWAP(&regs.B);
+		break;
+
+	case 0x31: // SWAP C
+		SWAP(&regs.C);
+		break;
+
+	case 0x32: // SWAP D
+		SWAP(&regs.D);
+		break;
+
+	case 0x33: // SWAP E
+		SWAP(&regs.E);
+		break;
+
+	case 0x34: // SWAP H
+		SWAP(&regs.H);
+		break;
+
+	case 0x35: // SWAP L
+		SWAP(&regs.L);
+		break;
+
+	case 0x36: // SWAP (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		SWAP(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x37: // SWAP A
+		SWAP(&regs.A);
+		break;
+
+	case 0x38: // SRL B
+		SRL(&regs.B);
+		break;
+
+	case 0x39: // SRL C
+		SRL(&regs.C);
+		break;
+
+	case 0x3A: // SRL D
+		SRL(&regs.D);
+		break;
+
+	case 0x3B: // SRL E
+		SRL(&regs.E);
+		break;
+
+	case 0x3C: // SRL H
+		SRL(&regs.H);
+		break;
+
+	case 0x3D: // SRL L
+		SRL(&regs.L);
+		break;
+
+	case 0x3E: // SRL (HL)
+		u8 = mem_get_byte(cpu_get_HL()); 	
+		SRL(&u8);
+		mem_set_byte(cpu_get_HL(), u8);
+		break;
+
+	case 0x3F: // SRL A
+		SRL(&regs.A);
 		break;	
 
 	default:
