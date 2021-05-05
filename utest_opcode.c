@@ -3073,6 +3073,74 @@ struct opcode_info opcode_dict_CB[] = {
 	{.code = 0xCB, .name = "SRL (HL)", .byte1 = 0x3E, .byte2 = 0x00 },
 	{.code = 0xCB, .name = "SRL A", .byte1 = 0x3F, .byte2 = 0x00 },
 
+	{.code = 0xCB, .name = "BIT 0 B", .byte1 = 0x40, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 C", .byte1 = 0x41, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 D", .byte1 = 0x42, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 E", .byte1 = 0x43, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 H", .byte1 = 0x44, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 L", .byte1 = 0x45, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 0 (HL)", .byte1 = 0x46, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 A", .byte1 = 0x47, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 B", .byte1 = 0x48, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 C", .byte1 = 0x49, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 D", .byte1 = 0x4A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 E", .byte1 = 0x4B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 H", .byte1 = 0x4C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 L", .byte1 = 0x4D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 (HL)", .byte1 = 0x4E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 1 A", .byte1 = 0x4F, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "BIT 2 B", 	.byte1 = 0x50, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 C", 	.byte1 = 0x51, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 D", 	.byte1 = 0x52, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 E", 	.byte1 = 0x53, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 H", 	.byte1 = 0x54, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 L", 	.byte1 = 0x55, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 (HL)",.byte1 = 0x56, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 2 A", 	.byte1 = 0x57, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 B", 	.byte1 = 0x58, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 C", 	.byte1 = 0x59, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 D", 	.byte1 = 0x5A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 E", 	.byte1 = 0x5B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 H", 	.byte1 = 0x5C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 L", 	.byte1 = 0x5D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 (HL)",.byte1 = 0x5E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 3 A", 	.byte1 = 0x5F, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "BIT 4 B", 	.byte1 = 0x60, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 C", 	.byte1 = 0x61, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 D", 	.byte1 = 0x62, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 E", 	.byte1 = 0x63, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 H", 	.byte1 = 0x64, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 L", 	.byte1 = 0x65, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 (HL)",.byte1 = 0x66, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 4 A", 	.byte1 = 0x67, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 B", 	.byte1 = 0x68, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 C", 	.byte1 = 0x69, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 D", 	.byte1 = 0x6A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 E", 	.byte1 = 0x6B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 H", 	.byte1 = 0x6C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 L", 	.byte1 = 0x6D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 (HL)",.byte1 = 0x6E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 5 A", 	.byte1 = 0x6F, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "BIT 6 B", 	.byte1 = 0x70, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 C", 	.byte1 = 0x71, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 D", 	.byte1 = 0x72, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 E", 	.byte1 = 0x73, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 H", 	.byte1 = 0x74, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 L", 	.byte1 = 0x75, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 (HL)",.byte1 = 0x76, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 6 A", 	.byte1 = 0x77, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 B", 	.byte1 = 0x78, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 C", 	.byte1 = 0x79, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 D", 	.byte1 = 0x7A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 E", 	.byte1 = 0x7B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 H", 	.byte1 = 0x7C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 L", 	.byte1 = 0x7D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 (HL)",.byte1 = 0x7E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "BIT 7 A", 	.byte1 = 0x7F, .byte2 = 0x00 },
+
 };
 
 int testsuite_opcodes_CB()
@@ -3224,6 +3292,126 @@ int testsuite_opcodes_CB()
 	cpu_test_opcode(opcode_dict_CB[opcode]);
 	cpu_print_test_result(opcode_dict_CB[opcode],
 			      mem_get_byte(cpu_get_HL()) == 0x40 && cpu_get_F() == 0x10);
+
+	// 0x40 : BIT 0, B
+	opcode = 0x40;
+	cpu_reset_registers();
+	cpu_set_B(0x01);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x46 : BIT 0, (HL)
+	opcode = 0x46;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xF0);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x48 : BIT 1, C
+	opcode = 0x49;
+	cpu_reset_registers();
+	cpu_set_C(0x02);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x4E : BIT 1, (HL)
+	opcode = 0x4E;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xF0);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x50 : BIT 2, B
+	opcode = 0x50;
+	cpu_reset_registers();
+	cpu_set_B(0x04);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x56 : BIT 2, (HL)
+	opcode = 0x56;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xF0);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x58 : BIT 3, C
+	opcode = 0x59;
+	cpu_reset_registers();
+	cpu_set_C(0x08);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x5E : BIT 3, (HL)
+	opcode = 0x5E;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xF0);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x60 : BIT 4, B
+	opcode = 0x60;
+	cpu_reset_registers();
+	cpu_set_B(0x10);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x66 : BIT 4, (HL)
+	opcode = 0x66;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x0F);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x68 : BIT 5, C
+	opcode = 0x69;
+	cpu_reset_registers();
+	cpu_set_C(0x20);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x6E : BIT 5, (HL)
+	opcode = 0x6E;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x0F);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x70 : BIT 6, B
+	opcode = 0x70;
+	cpu_reset_registers();
+	cpu_set_B(0x40);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x76 : BIT 6, (HL)
+	opcode = 0x76;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x0F);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x78 : BIT 7, C
+	opcode = 0x79;
+	cpu_reset_registers();
+	cpu_set_C(0x80);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0x20);
+
+	// 0x7E : BIT 7, (HL)
+	opcode = 0x7E;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x0F);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
 
 	return 0;
 }

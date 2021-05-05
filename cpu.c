@@ -246,6 +246,14 @@ static void SWAP(uint8_t *dst){
 }
 
 
+static void BIT(uint8_t bit2test, uint8_t *p_reg) {
+	uint8_t val = *p_reg & (1 << bit2test);
+	//printf("[BIT] %d = 0x%x & (1 << %d) = 0x%x & 0x%x\n", val, *p_reg, bit2test, *p_reg, (1 << bit2test));
+	cpu_set_flag(FLAG_ZERO, val == 0 ? TRUE : FALSE);
+	cpu_set_flag(FLAG_SUB, FALSE);
+	cpu_set_flag(FLAG_HALF_CARRY, TRUE);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2461,8 +2469,50 @@ static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
 		break;	
 
 	default:
-		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
-		    __LINE__, opcode);
+		if (opcode >= 0x40 && opcode <= 0x7F) {
+			uint8_t bit2test = (opcode - 0x40) / 8;
+			uint8_t reg2test = (opcode - 0x40) % 8;
+			//printf("[opcode=0x%x] bit2test = %d, reg2test = %d\n", opcode, bit2test, reg2test);
+			uint8_t *p_reg = NULL;
+			uint16_t opcode_on_addr = 0;
+			switch (reg2test) {
+				case 0:
+					p_reg = &regs.B;
+					break;
+				case 1:
+					p_reg = &regs.C;
+					break;
+				case 2:
+					p_reg = &regs.D;
+					break;
+				case 3:
+					p_reg = &regs.E;
+					break;
+				case 4:
+					p_reg = &regs.H;
+					break;
+				case 5:
+					p_reg = &regs.L;
+					break;
+				case 6:
+					opcode_on_addr = 1;
+					break;
+				case 7:
+					p_reg = &regs.A;
+					break;
+
+			}
+			if(opcode_on_addr) {
+				u8 = mem_get_byte(cpu_get_HL()); 	
+				BIT(bit2test, &u8);
+			} else {
+				BIT(bit2test, p_reg);
+			}
+		}
+		else {
+			printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
+			    __LINE__, opcode);
+		}
 		break;
 	}
 }
