@@ -3141,6 +3141,142 @@ struct opcode_info opcode_dict_CB[] = {
 	{.code = 0xCB, .name = "BIT 7 (HL)",.byte1 = 0x7E, .byte2 = 0x00 },
 	{.code = 0xCB, .name = "BIT 7 A", 	.byte1 = 0x7F, .byte2 = 0x00 },
 
+	{.code = 0xCB, .name = "RES 0 B", 	.byte1 = 0x80, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 C", 	.byte1 = 0x81, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 D", 	.byte1 = 0x82, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 E", 	.byte1 = 0x83, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 H", 	.byte1 = 0x84, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 L", 	.byte1 = 0x85, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 0 (HL)",.byte1 = 0x86, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 A", 	.byte1 = 0x87, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 B", 	.byte1 = 0x88, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 C", 	.byte1 = 0x89, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 D", 	.byte1 = 0x8A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 E", 	.byte1 = 0x8B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 H", 	.byte1 = 0x8C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 L", 	.byte1 = 0x8D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 (HL)",.byte1 = 0x8E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 1 A", 	.byte1 = 0x8F, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "RES 2 B", 	.byte1 = 0x90, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 C", 	.byte1 = 0x91, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 D", 	.byte1 = 0x92, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 E", 	.byte1 = 0x93, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 H", 	.byte1 = 0x94, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 L", 	.byte1 = 0x95, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 (HL)",.byte1 = 0x96, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 2 A", 	.byte1 = 0x97, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 B", 	.byte1 = 0x98, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 C", 	.byte1 = 0x99, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 D", 	.byte1 = 0x9A, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 E", 	.byte1 = 0x9B, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 H", 	.byte1 = 0x9C, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 L", 	.byte1 = 0x9D, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 (HL)",.byte1 = 0x9E, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 3 A", 	.byte1 = 0x9F, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "RES 4 B", 	.byte1 = 0xA0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 C", 	.byte1 = 0xA1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 D", 	.byte1 = 0xA2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 E", 	.byte1 = 0xA3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 H", 	.byte1 = 0xA4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 L", 	.byte1 = 0xA5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 (HL)",.byte1 = 0xA6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 4 A", 	.byte1 = 0xA7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 B", 	.byte1 = 0xA8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 C", 	.byte1 = 0xA9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 D", 	.byte1 = 0xAA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 E", 	.byte1 = 0xAB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 H", 	.byte1 = 0xAC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 L", 	.byte1 = 0xAD, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 (HL)",.byte1 = 0xAE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 5 A", 	.byte1 = 0xAF, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "RES 6 B", 	.byte1 = 0xB0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 C", 	.byte1 = 0xB1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 D", 	.byte1 = 0xB2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 E", 	.byte1 = 0xB3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 H", 	.byte1 = 0xB4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 L", 	.byte1 = 0xB5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 (HL)",.byte1 = 0xB6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 6 A", 	.byte1 = 0xB7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 B", 	.byte1 = 0xB8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 C", 	.byte1 = 0xB9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 D", 	.byte1 = 0xBA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 E", 	.byte1 = 0xBB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 H", 	.byte1 = 0xBC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 L", 	.byte1 = 0xBD, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 (HL)",.byte1 = 0xBE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "RES 7 A", 	.byte1 = 0xBF, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "SET 0 B", 	.byte1 = 0xC0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 C", 	.byte1 = 0xC1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 D", 	.byte1 = 0xC2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 E", 	.byte1 = 0xC3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 H", 	.byte1 = 0xC4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 L", 	.byte1 = 0xC5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 0 (HL)",.byte1 = 0xC6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 A", 	.byte1 = 0xC7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 B", 	.byte1 = 0xC8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 C", 	.byte1 = 0xC9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 D", 	.byte1 = 0xCA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 E", 	.byte1 = 0xCB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 H", 	.byte1 = 0xCC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 L", 	.byte1 = 0xCD, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 (HL)",.byte1 = 0xCE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 1 A", 	.byte1 = 0xCF, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "SET 2 B", 	.byte1 = 0xD0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 C", 	.byte1 = 0xD1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 D", 	.byte1 = 0xD2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 E", 	.byte1 = 0xD3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 H", 	.byte1 = 0xD4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 L", 	.byte1 = 0xD5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 (HL)",.byte1 = 0xD6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 2 A", 	.byte1 = 0xD7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 B", 	.byte1 = 0xD8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 C", 	.byte1 = 0xD9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 D", 	.byte1 = 0xDA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 E", 	.byte1 = 0xDB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 H", 	.byte1 = 0xDC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 L", 	.byte1 = 0xDD, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 (HL)",.byte1 = 0xDE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 3 A", 	.byte1 = 0xDF, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "SET 4 B", 	.byte1 = 0xE0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 C", 	.byte1 = 0xE1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 D", 	.byte1 = 0xE2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 E", 	.byte1 = 0xE3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 H", 	.byte1 = 0xE4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 L", 	.byte1 = 0xE5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 (HL)",.byte1 = 0XE6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 4 A", 	.byte1 = 0xE7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 B", 	.byte1 = 0xE8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 C", 	.byte1 = 0xE9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 D", 	.byte1 = 0xEA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 E", 	.byte1 = 0xEB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 H", 	.byte1 = 0xEC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 L", 	.byte1 = 0xED, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 (HL)",.byte1 = 0xEE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 5 A", 	.byte1 = 0xEF, .byte2 = 0x00 },
+
+	{.code = 0xCB, .name = "SET 6 B", 	.byte1 = 0xF0, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 C", 	.byte1 = 0xF1, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 D", 	.byte1 = 0xF2, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 E", 	.byte1 = 0xF3, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 H", 	.byte1 = 0xF4, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 L", 	.byte1 = 0xF5, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 (HL)",.byte1 = 0xF6, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 6 A", 	.byte1 = 0xF7, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 B", 	.byte1 = 0xF8, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 C", 	.byte1 = 0xF9, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 D", 	.byte1 = 0xFA, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 E", 	.byte1 = 0xFB, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 H", 	.byte1 = 0xFC, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 L", 	.byte1 = 0xFD, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 (HL)",.byte1 = 0xFE, .byte2 = 0x00 },
+	{.code = 0xCB, .name = "SET 7 A", 	.byte1 = 0xFF, .byte2 = 0x00 },
+
 };
 
 int testsuite_opcodes_CB()
@@ -3412,6 +3548,126 @@ int testsuite_opcodes_CB()
 	mem_set_byte(cpu_get_HL(), 0x0F);	
 	cpu_test_opcode(opcode_dict_CB[opcode]);
 	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_F() == 0xA0);
+
+	// 0x80 : RES 0, B
+	opcode = 0x80;
+	cpu_reset_registers();
+	cpu_set_B(0xFF);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0xFE);
+
+	// 0x86 : RES 0, (HL)
+	opcode = 0x86;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xFF);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0xFE);
+
+	// 0x88 : RES 1, B
+	opcode = 0x88;
+	cpu_reset_registers();
+	cpu_set_B(0xFF);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0xFD);
+
+	// 0x8E : RES 1, (HL)
+	opcode = 0x8E;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xFF);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0xFD);
+
+	// 0xB0 : RES 6, B
+	opcode = 0xB0;
+	cpu_reset_registers();
+	cpu_set_B(0xFF);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0xBF);
+
+	// 0xB6 : RES 6, (HL)
+	opcode = 0xB6;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xFF);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0xBF);
+
+	// 0xB8 : RES 7, B
+	opcode = 0xB8;
+	cpu_reset_registers();
+	cpu_set_B(0xFF);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0x7F);
+
+	// 0xBE : RES 7, (HL)
+	opcode = 0xBE;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0xFF);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0x7F);
+
+	// 0xC0 : SET 0, B
+	opcode = 0xC0;
+	cpu_reset_registers();
+	cpu_set_B(0x00);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0x01);
+
+	// 0xC6 : SET 0, (HL)
+	opcode = 0xC6;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x00);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0x01);
+
+	// 0xC8 : SET 1, B
+	opcode = 0xC8;
+	cpu_reset_registers();
+	cpu_set_B(0x00);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0x02);
+
+	// 0xCE : SET 1, (HL)
+	opcode = 0xCE;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x00);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0x02);
+
+	// 0xF0 : SET 6, B
+	opcode = 0xF0;
+	cpu_reset_registers();
+	cpu_set_B(0x00);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0x40);
+
+	// 0xF6 : SET 6, (HL)
+	opcode = 0xF6;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x00);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0x40);
+
+	// 0xF8 : SET 7, B
+	opcode = 0xF8;
+	cpu_reset_registers();
+	cpu_set_B(0x00);
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], cpu_get_B() == 0x80);
+
+	// 0xFE : SET 7, (HL)
+	opcode = 0xFE;
+	cpu_reset_registers();
+	cpu_set_HL(0x4157);
+	mem_set_byte(cpu_get_HL(), 0x00);	
+	cpu_test_opcode(opcode_dict_CB[opcode]);
+	cpu_print_test_result(opcode_dict_CB[opcode], mem_get_byte(0x4157) == 0x80);
 
 	return 0;
 }

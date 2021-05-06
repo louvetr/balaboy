@@ -254,6 +254,14 @@ static void BIT(uint8_t bit2test, uint8_t *p_reg) {
 	cpu_set_flag(FLAG_HALF_CARRY, TRUE);
 }
 
+static void RES(uint8_t bit2test, uint8_t *p_reg) {
+	*p_reg = *p_reg & ~(1 << bit2test);
+}
+
+static void SET(uint8_t bit2test, uint8_t *p_reg) {
+	*p_reg = *p_reg | (1 << bit2test);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2469,39 +2477,40 @@ static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
 		break;	
 
 	default:
+		{
+		uint8_t reg2test = (opcode - 0x40) % 8;
+		//printf("[opcode=0x%x] bit2test = %d, reg2test = %d\n", opcode, bit2test, reg2test);
+		uint8_t *p_reg = NULL;
+		uint16_t opcode_on_addr = 0;
+		switch (reg2test) {
+			case 0:
+				p_reg = &regs.B;
+				break;
+			case 1:
+				p_reg = &regs.C;
+				break;
+			case 2:
+				p_reg = &regs.D;
+				break;
+			case 3:
+				p_reg = &regs.E;
+				break;
+			case 4:
+				p_reg = &regs.H;
+				break;
+			case 5:
+				p_reg = &regs.L;
+				break;
+			case 6:
+				opcode_on_addr = 1;
+				break;
+			case 7:
+				p_reg = &regs.A;
+				break;
+		}
 		if (opcode >= 0x40 && opcode <= 0x7F) {
 			uint8_t bit2test = (opcode - 0x40) / 8;
-			uint8_t reg2test = (opcode - 0x40) % 8;
-			//printf("[opcode=0x%x] bit2test = %d, reg2test = %d\n", opcode, bit2test, reg2test);
-			uint8_t *p_reg = NULL;
-			uint16_t opcode_on_addr = 0;
-			switch (reg2test) {
-				case 0:
-					p_reg = &regs.B;
-					break;
-				case 1:
-					p_reg = &regs.C;
-					break;
-				case 2:
-					p_reg = &regs.D;
-					break;
-				case 3:
-					p_reg = &regs.E;
-					break;
-				case 4:
-					p_reg = &regs.H;
-					break;
-				case 5:
-					p_reg = &regs.L;
-					break;
-				case 6:
-					opcode_on_addr = 1;
-					break;
-				case 7:
-					p_reg = &regs.A;
-					break;
 
-			}
 			if(opcode_on_addr) {
 				u8 = mem_get_byte(cpu_get_HL()); 	
 				BIT(bit2test, &u8);
@@ -2509,10 +2518,33 @@ static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
 				BIT(bit2test, p_reg);
 			}
 		}
+		else if (opcode >= 0x80 && opcode <= 0xBF) {
+			uint8_t bit2test = (opcode - 0x80) / 8;
+
+			if(opcode_on_addr) {
+				u8 = mem_get_byte(cpu_get_HL()); 	
+				RES(bit2test, &u8);
+				mem_set_byte(cpu_get_HL(), u8);
+			} else {
+				RES(bit2test, p_reg);
+			}
+		}
+		else if (opcode >= 0xC0 && opcode <= 0xFF) {
+			uint8_t bit2test = (opcode - 0xC0) / 8;
+
+			if(opcode_on_addr) {
+				u8 = mem_get_byte(cpu_get_HL()); 	
+				SET(bit2test, &u8);
+				mem_set_byte(cpu_get_HL(), u8);
+			} else {
+				SET(bit2test, p_reg);
+			}
+		}
 		else {
 			printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
 			    __LINE__, opcode);
 		}
 		break;
+		}
 	}
 }
