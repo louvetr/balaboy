@@ -51,6 +51,8 @@ static void DEC_u8(uint8_t *ptr)
 
 static void LD_mem_u8(uint16_t addr, uint8_t src)
 {
+	/*if(addr == 0x9bff)
+		printf("test\n");*/
 	mem_set_byte(addr, src);
 }
 
@@ -169,7 +171,7 @@ static uint16_t SP_pop(){
 	return tmp_u16;
 }
 
-static void SP_push(uint16_t val){
+/*static*/ void SP_push(uint16_t val){
 	cpu_set_SP(cpu_get_SP()-2);
 	LD_mem_u16(cpu_get_SP(), val);
 }
@@ -265,6 +267,16 @@ static void SET(uint8_t bit2test, uint8_t *p_reg) {
 /////////////////////////////////////////////////////////////////////////////////////
 // public functions
 /////////////////////////////////////////////////////////////////////////////////////
+
+uint8_t cpu_get_interrupts_enabled()
+{
+	return cpu_interrupts_enabled;
+}
+
+void cpu_set_interrupts_enabled(uint8_t val)
+{
+	cpu_interrupts_enabled = val;
+}
 
 void cpu_reset_registers()
 {
@@ -442,11 +454,11 @@ cpu_flag_value cpu_get_flag(cpu_flag_name flag)
 	}
 }
 
-uint8_t cpu_exec_opcode(uint8_t opcode)
+uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 {
 	uint8_t length = 0; // length in byte
 	uint8_t duration = 0; // duration in clock cycles
-
+	uint8_t opcode = mem_get_byte(regs.PC);
 	uint8_t u8 = mem_get_byte(regs.PC + 1);
 
 	// Get the u16 value after opcode even if not needed.
@@ -459,6 +471,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	uint32_t u32 = 0;
 	int8_t r8;
 	uint8_t tmp_carry;
+	uint8_t add_lg = 1;
 
 	switch (opcode) {
 	// 0x0X ////////////////////////////////////////////////////////////////
@@ -691,6 +704,8 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			regs.PC = (uint16_t)(
 				(int16_t)regs.PC +
 				(int16_t)i8); // TODO: check if final PC value is right
+			regs.PC += 2;
+			add_lg = 0;
 		}
 		break;
 
@@ -775,10 +790,12 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			regs.PC = (uint16_t)(
 				(int16_t)regs.PC +
 				(int16_t)i8); // TODO: check if final PC value is right
+			add_lg = 0;
+			regs.PC += 2;
 		}
 		break;
 
-	case 0x29: // AD HL,HL
+	case 0x29: // ADD HL,HL // TODO
 		length = 1;
 		duration = 8;
 		cpu_set_flag(FLAG_SUB, FALSE);
@@ -844,6 +861,8 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			regs.PC = (uint16_t)(
 				(int16_t)regs.PC +
 				(int16_t)i8); // TODO: check if final PC value is right
+			add_lg = 0;
+			regs.PC += 2;
 		}
 		break;
 
@@ -913,10 +932,12 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			regs.PC = (uint16_t)(
 				(int16_t)regs.PC +
 				(int16_t)i8); // TODO: check if final PC value is right
+			add_lg = 0;
+			regs.PC += 2;
 		}
 		break;
 
-	case 0x39: // AD HL,SP
+	case 0x39: // ADD HL,SP //TODO
 		length = 1;
 		duration = 8;
 		cpu_set_flag(FLAG_SUB, FALSE);
@@ -1754,6 +1775,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 20;
 			// TODO: not sure is POP is needed
 			cpu_set_PC(SP_pop());
+			add_lg = 0;
 		}
 		else {
 			duration = 8;
@@ -1771,6 +1793,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		if(cpu_get_flag(FLAG_ZERO) == FALSE) {
 			duration = 16;
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1781,6 +1804,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		length = 3;
 		duration = 16;
 		cpu_set_PC(u16);
+		add_lg = 0;
 		break;
 
 	case 0xC4: // CALL NZ,a16
@@ -1789,6 +1813,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 24;
 			SP_push(cpu_get_PC());
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1820,6 +1845,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 20;
 			// TODO: not sure is POP is needed
 			cpu_set_PC(SP_pop());
+			add_lg = 0;
 		}
 		else {
 			duration = 8;
@@ -1831,6 +1857,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		// TODO: not sure is POP is needed
 		cpu_set_PC(SP_pop());
+		add_lg = 0;
 		break;
 
 	case 0xCA: // JP Z,a16
@@ -1838,6 +1865,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		if(cpu_get_flag(FLAG_ZERO) == TRUE) {
 			duration = 16;
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1856,6 +1884,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 24;
 			SP_push(cpu_get_PC());
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1865,8 +1894,9 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 	case 0xCD: // CALL a16
 		length = 3;
 		duration = 24;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC() + 3);
 		cpu_set_PC(u16);
+		add_lg = 0;
 		break;
 
 	case 0xCE: // ADC A,d8
@@ -1880,6 +1910,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0008);
+		add_lg = 0;
 		break;
 
 	// 0xDX ////////////////////////////////////////////////////////////////
@@ -1889,6 +1920,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 20;
 			// TODO: not sure is POP is needed
 			cpu_set_PC(SP_pop());
+			add_lg = 0;
 		}
 		else {
 			duration = 8;
@@ -1906,6 +1938,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		if(cpu_get_flag(FLAG_CARRY) == FALSE) {
 			duration = 16;
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1918,6 +1951,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 24;
 			SP_push(cpu_get_PC());
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1941,6 +1975,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0010);
+		add_lg = 0;
 		break;
 
 	case 0xD8: // RET C
@@ -1949,6 +1984,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 20;
 			// TODO: not sure is POP is needed
 			cpu_set_PC(SP_pop());
+			add_lg = 0;
 		}
 		else {
 			duration = 8;
@@ -1961,6 +1997,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		// TODO: not sure is POP is needed
 		cpu_set_PC(SP_pop());
 		cpu_interrupts_enabled = 1;
+		add_lg = 0;
 		break;
 
 	case 0xDA: // JP C,a16
@@ -1968,6 +2005,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		if(cpu_get_flag(FLAG_CARRY) == TRUE) {
 			duration = 16;
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1980,6 +2018,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 			duration = 24;
 			SP_push(cpu_get_PC());
 			cpu_set_PC(u16);
+			add_lg = 0;
 		}
 		else {
 			duration = 12;
@@ -1997,6 +2036,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0018);
+		add_lg = 0;
 		break;
 
 	// 0xEX ////////////////////////////////////////////////////////////////
@@ -2013,7 +2053,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		break;
 
 	case 0xE2: // LD (C),A
-		length = 2;
+		length = 1;
 		duration = 8;
 		LD_mem_u8(0xFF00 + cpu_get_C(), regs.A);
 		break;
@@ -2035,6 +2075,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0020);
+		add_lg = 0;
 		break;
 
 	case 0xE8: // ADD SP,r8
@@ -2061,6 +2102,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		length = 1;
 		duration = 4;
 		cpu_set_PC(cpu_get_HL());
+		add_lg = 0;
 		break;
 
 	case 0xEA: // LD (a16),A
@@ -2080,6 +2122,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0028);
+		add_lg = 0;
 		break;
 
 	// 0xFX ////////////////////////////////////////////////////////////////
@@ -2128,6 +2171,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0030);
+		add_lg = 0;
 		break;
 
 	case 0xF8: // LD HL,SP+r8
@@ -2175,6 +2219,7 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		duration = 16;
 		SP_push(cpu_get_PC());
 		cpu_set_PC(0x0038);
+		add_lg = 0;
 		break;
 
 
@@ -2192,7 +2237,13 @@ uint8_t cpu_exec_opcode(uint8_t opcode)
 		printf("[ERROR][%s:%d] invalid opcode length or duration\n",
 		       __func__, __LINE__);
 
-	return length;
+	*opcode_length = length;
+	*opcode_duration = duration;
+
+	if(add_lg)
+        cpu_set_PC(cpu_get_PC() + length);
+
+	return 0;
 }
 
 static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
@@ -2547,4 +2598,15 @@ static uint8_t cpu_exec_opcode_CB(uint8_t opcode)
 		break;
 		}
 	}
+}
+
+void cpu_init()
+{
+	cpu_set_AF(0x01);
+	cpu_set_F(0xB0);
+	cpu_set_BC(0x0013);
+	cpu_set_DE(0x00D8);
+	cpu_set_HL(0x014D);
+	cpu_set_SP(0xFFFE);
+	cpu_set_PC(0x0100);
 }
