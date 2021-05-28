@@ -1835,7 +1835,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xC7: // RST 00H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0000);
 		break;
 
@@ -1908,7 +1908,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xCF: // RST 08H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0008);
 		add_lg = 0;
 		break;
@@ -1973,7 +1973,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xD7: // RST 10H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0010);
 		add_lg = 0;
 		break;
@@ -2034,7 +2034,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xDF: // RST 18H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0018);
 		add_lg = 0;
 		break;
@@ -2073,7 +2073,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xE7: // RST 20H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0020);
 		add_lg = 0;
 		break;
@@ -2120,7 +2120,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xEF: // RST 28H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0028);
 		add_lg = 0;
 		break;
@@ -2169,7 +2169,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xF7: // RST 30H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0030);
 		add_lg = 0;
 		break;
@@ -2217,7 +2217,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xFF: // RST 38H
 		length = 1;
 		duration = 16;
-		SP_push(cpu_get_PC());
+		SP_push(cpu_get_PC()+1);
 		cpu_set_PC(0x0038);
 		add_lg = 0;
 		break;

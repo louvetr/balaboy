@@ -4,6 +4,26 @@
 // declare locally the memory array
 static uint8_t memory[MEMORY_SIZE];
 
+int dump_VRAM()
+{
+	static int i = 0;
+
+	if (i >= 10)
+		return 0;
+
+	FILE *fd;
+	char filename[64];
+	snprintf(filename, 64, "/tmp/dump_vram_balaboy_%d", i);
+	fd = fopen(filename, "w");
+
+	fwrite(memory + 0x8000, 0x2000, 1, fd);
+	fclose(fd);
+    i++;
+
+	return 0;
+}
+
+
 static void mem_OAM_copy(uint8_t start_addr)
 {
     uint16_t src = start_addr << 8;
