@@ -7,8 +7,9 @@ static uint8_t memory[MEMORY_SIZE];
 int dump_VRAM()
 {
 	static int i = 0;
+    i++;
 
-	if (i >= 10)
+	if (i % 100 != 0)
 		return 0;
 
 	FILE *fd;
@@ -18,7 +19,7 @@ int dump_VRAM()
 
 	fwrite(memory + 0x8000, 0x2000, 1, fd);
 	fclose(fd);
-    i++;
+    //i++;
 
 	return 0;
 }

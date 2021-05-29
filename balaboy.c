@@ -153,13 +153,13 @@ int main(int argc, char** argv)
         uint8_t op = mem_get_byte(cpu_get_PC());
         uint16_t SP = mem_get_byte(cpu_get_SP() + 1) << 8 |
 	       			   mem_get_byte(cpu_get_SP());
-        if(mem_get_byte(cpu_get_PC()) > 0) {
+        /*if(mem_get_byte(cpu_get_PC()) > 0) {
             printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL=0x%x, FF44=0x%x, FFA1=0x%x, FFFF=0x%x\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
                 cpu_get_A(), SP, cpu_get_HL(), mem_get_byte(0xFF44),
                 mem_get_byte(0xFFA1), mem_get_byte(0xFFFF));
             op_cpt++;
-        }
+        }*/
 
         // Exec opcode
         cpu_exec_opcode(&op_length, &op_duration);

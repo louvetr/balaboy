@@ -70,9 +70,12 @@ uint8_t tiles[128 * 64] = {};
 
 static int tile_set_line(uint8_t line_nb, uint8_t B0, uint8_t B1, uint8_t *tile_matrix)
 {
+	uint8_t p0, p1;
+
     for(int i = 0; i < 8; i++) {
-        tile_matrix[line_nb * 8 + i] =
-            (((B1 > (7-i)) < 1) & 0x2) | ((B0 > (7-i)) & 0x01);
+		p0 = (B0 >> (7-i)) & 0x01;
+		p1 = ((B1 >> (7-i)) << 1) & 0x2;
+        tile_matrix[line_nb * 8 + i] = p1 | p0;
     }
     return 0;
 }
@@ -120,7 +123,7 @@ static int draw_frame_VRAM()
         
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
-                    switch (tile[i*8 + j])
+                    switch (tile[i + j*8])
                     {
                     case 0:
                         SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -141,7 +144,6 @@ static int draw_frame_VRAM()
                     default:
                         break;
                     }
-                    //SDL_RenderDrawPoint(renderer, i + 8 * k, j + 8 * (k / 128));
                     SDL_RenderDrawPoint(renderer, i + 8 * k, j + l*8);
                 }
             }
@@ -237,3 +239,4 @@ int gpu_processing(uint8_t op_duration)
 	}
 
 }
+
