@@ -42,7 +42,7 @@ static int load_rom(char* path)
     }
     fseek(fd, 0, SEEK_END);
     uint32_t rom_size = ftell(fd);
-    printf("ROM size is %d kB\n", rom_size / 1024);
+    //printf("ROM size is %d kB\n", rom_size / 1024);
     if (rom_size > (1024*32)) {
         printf("ROM with size bigger than 32 kB aren't supported yet\n");
         return -EINVAL;
@@ -75,9 +75,9 @@ int main(int argc, char** argv)
         goto exit;
     }
 
-    printf("argc = %d\n", argc);
+    /*printf("argc = %d\n", argc);
     printf("argv[0] = %s\n", argv[0]);
-    printf("argv[1] = %s\n", argv[1]);
+    printf("argv[1] = %s\n", argv[1]);*/
 
     // Load the ROM
     ret = load_rom(argv[1]);
@@ -153,13 +153,14 @@ int main(int argc, char** argv)
         uint8_t op = mem_get_byte(cpu_get_PC());
         uint16_t SP = mem_get_byte(cpu_get_SP() + 1) << 8 |
 	       			   mem_get_byte(cpu_get_SP());
-        /*if(mem_get_byte(cpu_get_PC()) > 0) {
-            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL=0x%x, FF44=0x%x, FFA1=0x%x, FFFF=0x%x\n",
+        if(mem_get_byte(cpu_get_PC()) > 0) {
+            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, C=0x%x, FF44=0x%x, FF80=0x%x, FF00=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
-                cpu_get_A(), SP, cpu_get_HL(), mem_get_byte(0xFF44),
-                mem_get_byte(0xFFA1), mem_get_byte(0xFFFF));
+                cpu_get_A(), SP, cpu_get_C(), mem_get_byte(0xFF44),
+                mem_get_byte(0xFF80), mem_get_byte(0xFF00),
+                cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));
             op_cpt++;
-        }*/
+        }
 
         // Exec opcode
         cpu_exec_opcode(&op_length, &op_duration);

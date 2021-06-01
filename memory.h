@@ -12,6 +12,7 @@
 
 #define DIV     0xFF04
 
+#define LCDC    0xFF40
 #define SCY     0xFF42
 #define SCX     0xFF43
 #define LY      0xFF44

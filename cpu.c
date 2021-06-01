@@ -143,7 +143,9 @@ static void XOR_with_A(uint8_t val)
 	cpu_set_flag(FLAG_SUB, FALSE);
 	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
 	cpu_set_flag(FLAG_CARRY, FALSE);
-	regs.A ^= val;
+	//regs.A ^= val;
+	printf(" A(0x%x) XOR val(0x%x) = 0x%x\n", regs.A, val, regs.A ^ val);
+	regs.A = regs.A ^ val;
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 }
 
@@ -631,15 +633,15 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 		length = 2;
 		duration = 12;
 		int8_t i8 = (int8_t)mem_get_byte(regs.PC + 1);
-		printf("[cpu.c] regs.PC + i8 = 0x%x = 0x%x + %d (0x%x)\n",
+		/*printf("[cpu.c] regs.PC + i8 = 0x%x = 0x%x + %d (0x%x)\n",
 		       regs.PC + i8, regs.PC, i8, mem_get_byte(regs.PC + 1));
 		printf("[cpu.c] int16_t (int16_t)regs.PC + (int16_t)i8 = %d + %d = %d\n",
 		       (int16_t)regs.PC + (int16_t)i8, (int16_t)regs.PC,
-		       (int16_t)i8);
+		       (int16_t)i8);*/
 		regs.PC = (uint16_t)(
 			(int16_t)regs.PC +
 			(int16_t)i8); // TODO: check if final PC value is right
-		printf("[cpu.c] regs.PC = 0x%x\n", regs.PC);
+		//printf("[cpu.c] regs.PC = 0x%x\n", regs.PC);
 		break;
 
 	case 0x19: // ADD HL,DE

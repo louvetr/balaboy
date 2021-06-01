@@ -54,11 +54,11 @@ void mem_set_byte(uint16_t addr, uint8_t value)
 
         memory[addr] = value;
 
-        if(addr >= 0x8000 && addr <= 0x9FFF) {
+        /*if(addr >= 0x8000 && addr <= 0x9FFF) {
             addr++;
             addr--;
             printf("memory[0x%x] = 0x%x\n", addr, memory[addr]);
-        }
+        }*/
 
     }
 }

@@ -10,8 +10,11 @@
 
 static uint8_t gpu_line = 0;
 
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH_VRAM = 1024;
+const int SCREEN_HEIGHT_VRAM = 32;
+
+const int SCREEN_WIDTH = 256 /*160*/;
+const int SCREEN_HEIGHT = 256 /*144*/;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -76,6 +79,18 @@ static int tile_set_line(uint8_t line_nb, uint8_t B0, uint8_t B1, uint8_t *tile_
 		p0 = (B0 >> (7-i)) & 0x01;
 		p1 = ((B1 >> (7-i)) << 1) & 0x2;
         tile_matrix[line_nb * 8 + i] = p1 | p0;
+    }
+    return 0;
+}
+
+static int tile_set_line_in_background(uint8_t line_nb, uint8_t B0, uint8_t B1, uint8_t *addr)
+{
+	uint8_t p0, p1;
+
+    for(int i = 0; i < 8; i++) {
+		p0 = (B0 >> (7-i)) & 0x01;
+		p1 = ((B1 >> (7-i)) << 1) & 0x2;
+        *(addr + i) = p1 | p0;
     }
     return 0;
 }
@@ -157,6 +172,132 @@ static int draw_frame_VRAM()
 }
 
 
+static int draw_frame_SCREEN()
+{
+	uint8_t background[256*256 + 1] = {};
+	uint16_t tile_map_addr;
+	uint16_t tile_data_addr;
+	uint8_t lcdc = mem_get_byte(LCDC);
+	lcdc = 0xd3;
+
+	if(lcdc & 0x08)
+		tile_map_addr = 0x9C00;
+	else
+		tile_map_addr = 0x9800;
+
+	if(lcdc & 0x10)
+		tile_data_addr = 0x8000;
+	else
+		tile_data_addr = 0x8800;
+
+	int idx_max = 0;
+	tile_map_addr = 0x9800;
+
+	// go through the 32x32 tile map
+	for (int i = 0; i < 32; i++){
+		for (int j = 0; j < 32; j++){
+			uint8_t tile_idx = mem_get_byte(tile_map_addr + i*32 + j);
+			//printf("%-3d,", tile_idx);
+
+			// fill the background buffer with the current tile line by line
+			for (int k = 0; k < 8; k++) {
+    		    uint8_t B0 = mem_get_byte(tile_data_addr + (tile_idx + k) * 2);
+    		    uint8_t B1 = mem_get_byte(tile_data_addr + (tile_idx + k) * 2 + 1 );
+				int idx = i*32*64 + k*256 + j*8;
+				//printf("%d,", idx);
+    		    tile_set_line_in_background(i, B0, B1, &background[idx]);
+				if(idx > idx_max)
+					idx_max = idx;
+			}
+		}			
+		//printf("\n");
+	}
+	//printf("\n");
+
+	//printf("max_idx =%d (%d)\n", idx_max, 256*256);
+
+	// DBG: display BG ///////////////////////////////////////
+	int x, y;
+	for(y = 0; y < 256; y++) {
+        for(x = 0; x < 256; x++) {
+            switch (background[y*256 + x])
+            {
+            case 0:
+            	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                break;
+            case 1:
+                SDL_SetRenderDrawColor(renderer, 0xAA, 0xAA, 0xAA, 0xFF);
+                break;
+            case 2:
+                SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 0xFF);
+                break;
+            case 3:
+                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+                break; 
+            default:
+                break;
+            }
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+	}
+    SDL_RenderPresent(renderer);
+
+	return 0;
+	// DBG //////////////////////////////////////////////////////////////////
+
+#if 0
+	/*printf("\n");
+	printf("\n");
+	for (int i = 0; i < 256; i++){
+		for (int j = 0; j < 256; j++) {
+			printf("%d", background[i*256+j]);
+		}
+		printf("\n");
+	}*/
+
+	// fill and render screen
+	uint16_t scx = mem_get_byte(SCX);
+	uint16_t scy = mem_get_byte(SCY);
+	/*uint16_t max_x = scx + 160;
+	uint16_t max_y = scy + 144;*/
+	
+	//int x, y;
+    /*for(y = scy; y < max_y; y++) {
+        for(x = scx; x < max_x; x++) {*/
+    for(y = 0; y < 144; y++) {
+        for(x = 0; x < 160; x++) {
+            switch (background[(scy + y) * 256 + scx + x])
+            {
+            case 0:
+            	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                break;
+            case 1:
+                SDL_SetRenderDrawColor(renderer, 0xAA, 0xAA, 0xAA, 0xFF);
+                break;
+            case 2:
+                SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 0xFF);
+                break;
+            case 3:
+                SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+                break; 
+            default:
+                break;
+            }
+            SDL_RenderDrawPoint(renderer, x, y);
+        }
+	}
+    SDL_RenderPresent(renderer);
+
+	static int nb_frame = 0;
+	printf("[%d] scx=%d, scy=%d, map=0x%x, data=%x, LCDC=0x%x, map0=%d\n",
+			nb_frame, scx, scy, tile_map_addr, tile_data_addr, mem_get_byte(LCDC), mem_get_byte(tile_map_addr));
+	nb_frame++;
+
+	return 0;
+#endif
+}
+
+
 static int cptt;
 
 int gpu_processing(uint8_t op_duration)
@@ -185,7 +326,8 @@ int gpu_processing(uint8_t op_duration)
 	           	mem_set_byte(IF, val | INT_VBLANK);
 
 				// dbg functions        
-				draw_frame_VRAM();
+				//draw_frame_VRAM();
+				draw_frame_SCREEN();
 				dump_VRAM();
 			}
 			else {
