@@ -10,8 +10,6 @@
 #include "memory.h"
 
 
-
-
 uint8_t OP_CYCLES[0x100] = {
 	//   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 	4,12, 8, 8, 4, 4, 8, 4,20, 8, 8, 8, 4, 4, 8, 4,    // 0x00
@@ -61,8 +59,6 @@ static int load_rom(char* path)
 
     return 0;
 } 
-
-
 
 
 int main(int argc, char** argv)
@@ -153,20 +149,20 @@ int main(int argc, char** argv)
         uint8_t op = mem_get_byte(cpu_get_PC());
         uint16_t SP = mem_get_byte(cpu_get_SP() + 1) << 8 |
 	       			   mem_get_byte(cpu_get_SP());
-        if(mem_get_byte(cpu_get_PC()) > 0) {
-            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, C=0x%x, FF44=0x%x, FF80=0x%x, FF00=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
+        /*if(mem_get_byte(cpu_get_PC()) > 0) {
+            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, C=0x%x, FF44=0x%x, FF80=0x%x, FF00=0x%x, FFF0=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
                 cpu_get_A(), SP, cpu_get_C(), mem_get_byte(0xFF44),
-                mem_get_byte(0xFF80), mem_get_byte(0xFF00),
+                mem_get_byte(0xFF80), mem_get_byte(0xFF00), mem_get_byte(0xFFF0),
                 cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));
             op_cpt++;
-        }
+        }*/
 
         // Exec opcode
         cpu_exec_opcode(&op_length, &op_duration);
 
         // DBG: force timings from deltabeard
-        op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
+        //op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
 
 
 
@@ -184,7 +180,7 @@ int main(int argc, char** argv)
 
         opcode_nb++;
 
-        if(opcode_nb > 1 * 1000 * 1000)
+        if(opcode_nb > 10 * 1000 * 1000)
             break;
     }
 

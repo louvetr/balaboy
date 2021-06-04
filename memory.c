@@ -4,6 +4,7 @@
 // declare locally the memory array
 static uint8_t memory[MEMORY_SIZE];
 
+// debug function
 int dump_VRAM()
 {
 	static int i = 0;
@@ -19,7 +20,6 @@ int dump_VRAM()
 
 	fwrite(memory + 0x8000, 0x2000, 1, fd);
 	fclose(fd);
-    //i++;
 
 	return 0;
 }
@@ -33,7 +33,15 @@ static void mem_OAM_copy(uint8_t start_addr)
 }
 
 
-uint8_t mem_get_byte(uint16_t addr) {return memory[addr]; }
+uint8_t mem_get_byte(uint16_t addr) {
+
+    if(addr == 0xFF00) { // P1
+        // TODO: manage inputs
+        return memory[addr] | 0xC0 | 0x0F;
+    }
+
+    return memory[addr];
+}
 
 void mem_set_byte(uint16_t addr, uint8_t value)
 {
@@ -48,16 +56,11 @@ void mem_set_byte(uint16_t addr, uint8_t value)
         break;
 
     default:
-
-        /*if(addr == 0xFF44 && memory[0xFF44] == 0x1A && (value == 0x02 || value == 0x01))
-            printf("MINDFUCK ---------------------------------\n");*/
-
         memory[addr] = value;
 
-        /*if(addr >= 0x8000 && addr <= 0x9FFF) {
-            addr++;
-            addr--;
-            printf("memory[0x%x] = 0x%x\n", addr, memory[addr]);
+        //if(addr >= 0x8000 && addr <= 0x9FFF) {
+        /*if(addr >= 0x9800 && addr < 0x9C00) {
+            printf("tilemap[0x%x] = 0x%x\n", addr, memory[addr]);
         }*/
 
     }
