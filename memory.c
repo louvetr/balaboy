@@ -10,7 +10,7 @@ int dump_VRAM()
 	static int i = 0;
     i++;
 
-	if (i % 100 != 0)
+	if (i % 1000 != 0)
 		return 0;
 
 	FILE *fd;
@@ -45,13 +45,29 @@ uint8_t mem_get_byte(uint16_t addr) {
 
 void mem_set_byte(uint16_t addr, uint8_t value)
 {
+    // Do no overwrite cartridge ROM
+    if (addr < 0x8000)
+        return;
+
     switch(addr) {
+
+    case 0xDFE9: // WRAM
+		printf("force_log --- wrire into 0xDFE9\n");
+		//force_log = 1;
+        memory[addr] = value;
+        break;       
+
+    case 0xFFA6: // WRAM
+		printf("force_log --- wrire into 0xFFA6\n");
+        memory[addr] = value;
+        break;  
 
     case 0xFF04: // DIV
         memory[addr] = 0x0;
         break;       
 
     case 0xFF46: // DMA
+        memory[addr] = value;
         mem_OAM_copy(value);
         break;
 
@@ -61,9 +77,13 @@ void mem_set_byte(uint16_t addr, uint8_t value)
         //if(addr >= 0x8000 && addr <= 0x9FFF) {
         /*if(addr >= 0x9800 && addr < 0x9C00) {
             printf("tilemap[0x%x] = 0x%x\n", addr, memory[addr]);
+            //set_force_log();
         }*/
 
     }
+
+    if(addr == 0x2000)
+        printf("tototototo\n");
 }
 
 void mem_fill(uint16_t addr, uint8_t *data, uint16_t size)
