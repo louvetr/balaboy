@@ -144,7 +144,7 @@ static void XOR_with_A(uint8_t val)
 	cpu_set_flag(FLAG_HALF_CARRY, FALSE);
 	cpu_set_flag(FLAG_CARRY, FALSE);
 	//regs.A ^= val;
-	printf(" A(0x%x) XOR val(0x%x) = 0x%x\n", regs.A, val, regs.A ^ val);
+	//printf(" A(0x%x) XOR val(0x%x) = 0x%x\n", regs.A, val, regs.A ^ val);
 	regs.A = regs.A ^ val;
 	cpu_set_flag(FLAG_ZERO, regs.A == 0 ? TRUE : FALSE);
 }
@@ -2110,7 +2110,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	case 0xEA: // LD (a16),A
 		length = 3;
 		duration = 16;
-		LD_mem_u16(u16, regs.A);
+		LD_mem_u8(u16, regs.A);
 		break;
 
 	case 0xEE: // XOR d8
