@@ -9,6 +9,9 @@
 #include "gpu.h"
 #include "memory.h"
 
+static int force_log = 0;
+
+
 
 uint8_t OP_CYCLES[0x100] = {
 	//   0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -60,6 +63,10 @@ static int load_rom(char* path)
     return 0;
 } 
 
+void set_force_log()
+{
+    force_log = 1;   
+}
 
 int main(int argc, char** argv)
 {
@@ -136,8 +143,9 @@ int main(int argc, char** argv)
                 dst_addr = 0x0060;
             }
 
-            if(dst_addr) {
-                printf("=> #0x%x interrupt\n", dst_addr);
+            if(dst_addr) {                
+                if(dst_addr != 0x58)
+                    printf("=> #0x%x interrupt\n", dst_addr);
                 cpu_set_interrupts_enabled(0);
                 SP_push(cpu_get_PC()/* + 3*/);
 		        cpu_set_PC(dst_addr);
@@ -149,20 +157,22 @@ int main(int argc, char** argv)
         uint8_t op = mem_get_byte(cpu_get_PC());
         uint16_t SP = mem_get_byte(cpu_get_SP() + 1) << 8 |
 	       			   mem_get_byte(cpu_get_SP());
-        /*if(mem_get_byte(cpu_get_PC()) > 0) {
-            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, C=0x%x, FF44=0x%x, FF80=0x%x, FF00=0x%x, FFF0=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
+        /*if(0 && mem_get_byte(cpu_get_PC()) > 0 && 
+            (time_cpu > 190000568 || (time_cpu < 37000000))
+            ) {*/
+            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL[0x%x]=0x%x, FF44=0x%x, FF40=0x%x Z=%d,N=%d,H=%d,C=%d\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
-                cpu_get_A(), SP, cpu_get_C(), mem_get_byte(0xFF44),
-                mem_get_byte(0xFF80), mem_get_byte(0xFF00), mem_get_byte(0xFFF0),
+                cpu_get_A(), SP, cpu_get_HL(), mem_get_byte(cpu_get_HL()),
+                mem_get_byte(0xFF44), mem_get_byte(0xFF40),
                 cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));
             op_cpt++;
-        }*/
+        //}
 
         // Exec opcode
         cpu_exec_opcode(&op_length, &op_duration);
 
         // DBG: force timings from deltabeard
-        //op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
+        op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
 
 
 
@@ -178,9 +188,20 @@ int main(int argc, char** argv)
 
         // OAM access
 
+
+        if(force_log && 0) {
+            printf( "[after] 0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL=0x%x, (HL)=0x%x, FFA6=0x%x, FF00=0x%x, FFF0=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
+                mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
+                cpu_get_A(), SP, cpu_get_HL(), mem_get_byte(cpu_get_HL()),
+                mem_get_byte(0xFFA6), mem_get_byte(0xFF00), mem_get_byte(0xFFF0),
+                cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));
+            force_log = 0;
+        }
+
+
         opcode_nb++;
 
-        if(opcode_nb > 10 * 1000 * 1000)
+        if(opcode_nb > 30 /*25*/ * 1000 * 1000)
             break;
     }
 

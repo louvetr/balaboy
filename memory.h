@@ -7,6 +7,7 @@
 #include <inttypes.h>
 
 #define MEMORY_SIZE 0x10000
+#define OAM_ADDR    0xFE00
 
 // I/O registers addr shortcuts
 
