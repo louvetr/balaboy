@@ -160,11 +160,11 @@ int main(int argc, char** argv)
         /*if(0 && mem_get_byte(cpu_get_PC()) > 0 && 
             (time_cpu > 190000568 || (time_cpu < 37000000))
             ) {*/
-            printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL[0x%x]=0x%x, FF44=0x%x, FF40=0x%x Z=%d,N=%d,H=%d,C=%d\n",
+            /*printf( "0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL[0x%x]=0x%x, FF44=0x%x, FF40=0x%x Z=%d,N=%d,H=%d,C=%d\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
                 cpu_get_A(), SP, cpu_get_HL(), mem_get_byte(cpu_get_HL()),
                 mem_get_byte(0xFF44), mem_get_byte(0xFF40),
-                cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));
+                cpu_get_flag(FLAG_ZERO), cpu_get_flag(FLAG_SUB), cpu_get_flag(FLAG_HALF_CARRY), cpu_get_flag(FLAG_CARRY));*/
             op_cpt++;
         //}
 

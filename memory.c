@@ -28,7 +28,7 @@ int dump_VRAM()
 static void mem_OAM_copy(uint8_t start_addr)
 {
     uint16_t src = start_addr << 8;
-    memcpy(&memory[src], &memory[0xFE00], 0xA0);
+    memcpy(&memory[0xFE00], &memory[src], 0xA0);
     //TODO: wait 160 usec
 }
 

@@ -130,7 +130,7 @@ static int tile_set_line_sprite(uint8_t B0, uint8_t B1, uint8_t layer, uint8_t x
         	pp = p1 | p0;
 
 			// ignore blank sprite pixel since they are transparent
-			if(pp = 0x00) // TODO: check pp == WHITE (0xFF ?)
+			if(pp == 0x00) // TODO: check pp == WHITE (0xFF ?)
 				continue;
 
 			// above BG
@@ -372,8 +372,8 @@ static int gpu_set_line_sprite(uint8_t line)
 			B0 = mem_get_byte(tile_addr);
    			B1 = mem_get_byte(tile_addr + 1);
 
-			if(B0 || B1)
-				printf("%s\n", __func__);
+			/*if(B0 || B1)
+				printf("%s\n", __func__);*/
 
 			int idxPixel = line*256 + x;
 	    	tile_set_line_sprite(B0, B1, layer, x_flip, palette, &background[idxPixel]);		
