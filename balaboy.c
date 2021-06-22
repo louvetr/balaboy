@@ -8,6 +8,7 @@
 #include "cpu.h"
 #include "gpu.h"
 #include "memory.h"
+#include "time.h"
 
 static int force_log = 0;
 
@@ -90,9 +91,10 @@ int main(int argc, char** argv)
     }
 
     // init
+    SDL_init();
     cpu_init();
     mem_init();
-    SDL_init();
+    time_init();
 
 
     uint8_t op_length, op_duration;
@@ -183,10 +185,7 @@ int main(int argc, char** argv)
         // Process GPU operations
         gpu_processing(op_duration);
 
-        // Timer management
-
-
-        // OAM access
+        // Timers management
 
 
         if(force_log && 0) {

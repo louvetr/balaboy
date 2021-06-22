@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "gpu.h"
 #include "memory.h"
+#include "time.h"
 
 #define DURATION_HBLANK 204
 #define DURATION_VBLANK 4560
@@ -457,7 +458,10 @@ int gpu_processing(uint8_t op_duration)
 				// dbg functions
 				//draw_frame_VRAM();
 				draw_frame_SCREEN();
-				dump_VRAM();
+				//dump_VRAM();
+
+        		// Regulate framerate
+				time_regulate_framerate();
 			} else {
 				mode = OAM_ACCESS;
 			}
