@@ -312,7 +312,7 @@ static int draw_frame_SCREEN()
 	SDL_RenderPresent(renderer);
 
 	static int frame_cpt = 0;
-	printf("frame_cpt = %d\n", frame_cpt);
+	//printf("frame_cpt = %d\n", frame_cpt);
 	frame_cpt++;
 
 	return 0;
@@ -340,9 +340,9 @@ static int gpu_set_line_background(uint8_t line)
 
 	int idx_max = 0;
 
-	if (line == 0)
+	/*if (line == 0)
 		printf("[bginfo] tile map = 0x%x, tile_data = 0x%x\n",
-		       tile_map_addr, tile_data_addr);
+		       tile_map_addr, tile_data_addr);*/
 
 	// TODO: use SCX & SCY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	/*if(line % 8 == 1)
@@ -449,8 +449,8 @@ int gpu_processing(uint8_t op_duration)
 			if (gpu_line >= 144) {
 				mode = VBLANK;
 				// Trigger VBLANK interrupt
-				printf("=> trigger VBLANK interrupt #%d\n",
-				       cptt);
+				/*printf("=> trigger VBLANK interrupt #%d\n",
+				       cptt);*/
 				cptt++;
 				uint8_t val = mem_get_byte(IF);
 				mem_set_byte(IF, val | INT_VBLANK);
@@ -478,7 +478,7 @@ int gpu_processing(uint8_t op_duration)
 				mode = OAM_ACCESS;
 				gpu_line = 0;
 
-				printf("\n");
+				//printf("\n");
 
 				//printf("[%d] line set to %d\n", __LINE__, gpu_line);
 				// TODO: move SDL rendering in gpu.c

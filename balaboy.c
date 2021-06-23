@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "cpu.h"
+#include "input.h"
 #include "gpu.h"
 #include "memory.h"
 #include "time.h"
@@ -93,6 +94,7 @@ int main(int argc, char** argv)
     // init
     SDL_init();
     cpu_init();
+    input_init();
     mem_init();
     time_init();
 
@@ -141,12 +143,13 @@ int main(int argc, char** argv)
                 dst_addr = 0x0058;
             }
             // Joypad Input
-            else if(val_IE & val_IF & 0x10) {
+            else if(val_IE & val_IF & INT_JOYPAD) {
                 dst_addr = 0x0060;
+                mem_set_byte(IF, val_IF & ~INT_JOYPAD);
             }
 
             if(dst_addr) {                
-                if(dst_addr != 0x58)
+                if(dst_addr != 0x58 && dst_addr == 0x0060)
                     printf("=> #0x%x interrupt\n", dst_addr);
                 cpu_set_interrupts_enabled(0);
                 SP_push(cpu_get_PC()/* + 3*/);
@@ -188,6 +191,10 @@ int main(int argc, char** argv)
         // Timers management
 
 
+        // Input management
+        input_scan();
+
+
         if(force_log && 0) {
             printf( "[after] 0x%x, 0x%x, %u, A=0x%x, SP=0x%x, HL=0x%x, (HL)=0x%x, FFA6=0x%x, FF00=0x%x, FFF0=0x%x, Z=%d,N=%d,H=%d,C=%d\n",
                 mem_get_byte(cpu_get_PC()), cpu_get_PC(), time_cpu,
@@ -200,11 +207,7 @@ int main(int argc, char** argv)
 
         opcode_nb++;
 
-        if(opcode_nb > 30 /*25*/ * 1000 * 1000)
-            break;
     }
-
-
 
 
 

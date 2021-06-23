@@ -1,4 +1,4 @@
-
+#include "input.h"
 #include "memory.h"
 
 // declare locally the memory array
@@ -36,8 +36,7 @@ static void mem_OAM_copy(uint8_t start_addr)
 uint8_t mem_get_byte(uint16_t addr) {
 
     if(addr == 0xFF00) { // P1
-        // TODO: manage inputs
-        return memory[addr] | 0xC0 | 0x0F;
+        return 0xC0 | (memory[addr] & 0x3F);
     }
 
     return memory[addr];
@@ -45,6 +44,8 @@ uint8_t mem_get_byte(uint16_t addr) {
 
 void mem_set_byte(uint16_t addr, uint8_t value)
 {
+    uint8_t tmp;
+
     // Do no overwrite cartridge ROM
     if (addr < 0x8000)
         return;
@@ -52,13 +53,15 @@ void mem_set_byte(uint16_t addr, uint8_t value)
     switch(addr) {
 
     case 0xDFE9: // WRAM
-		printf("force_log --- wrire into 0xDFE9\n");
-		//force_log = 1;
         memory[addr] = value;
         break;       
 
+    case 0xFF00: // P1 input
+        tmp = memory[addr];
+        memory[addr] = (value & 0xF0) | (input_get() & 0x0F);
+        break;
+
     case 0xFFA6: // WRAM
-		printf("force_log --- wrire into 0xFFA6\n");
         memory[addr] = value;
         break;  
 
@@ -82,8 +85,6 @@ void mem_set_byte(uint16_t addr, uint8_t value)
 
     }
 
-    if(addr == 0x2000)
-        printf("tototototo\n");
 }
 
 void mem_fill(uint16_t addr, uint8_t *data, uint16_t size)

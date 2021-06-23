@@ -11,6 +11,7 @@
 
 // I/O registers addr shortcuts
 
+#define P1      0xFF00
 #define DIV     0xFF04
 
 #define LCDC    0xFF40
