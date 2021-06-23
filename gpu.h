@@ -11,5 +11,6 @@ typedef enum {
     LCD_DRAWING = 3
 } gpu_mode;
 
+void gpu_set_scale(uint8_t value);
 int gpu_processing(uint8_t op_duration);
 int SDL_init();

@@ -9,10 +9,11 @@
 #define DURATION_LCD 172
 #define DURATION_LINE 456
 
-#define COLOR_WHITE 0xFF
-#define COLOR_LIGHTGRAY 0xAA
-#define COLOR_DARKGRAY 0x55
-#define COLOR_BLACK 0x00
+#define COLOR32_WHITE 0xFFFFFFFF
+#define COLOR32_LIGHTGRAY 0xFFAAAAAA
+#define COLOR32_DARKGRAY 0xFF555555
+#define COLOR32_BLACK 0xFF000000
+
 
 static uint8_t gpu_line = 0;
 
@@ -23,9 +24,15 @@ const int SCREEN_WIDTH = 160;
 const int SCREEN_HEIGHT = 144;
 
 SDL_Window *window;
-SDL_Renderer *renderer;
 SDL_Texture *texture;
 SDL_Surface *surface;
+
+static uint8_t scale = 2;
+
+void gpu_set_scale(uint8_t value)
+{
+	scale = value;
+}
 
 int SDL_init()
 {
@@ -43,29 +50,29 @@ int SDL_init()
 	}
 
 	// create window
-	window = SDL_CreateWindow("SDL_tuto", SDL_WINDOWPOS_UNDEFINED,
-				  SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
-				  SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("BalaBoy", SDL_WINDOWPOS_UNDEFINED,
+				  SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH * scale,
+				  SCREEN_HEIGHT * scale, SDL_WINDOW_SHOWN);
 	if (!window) {
 		printf("SDL_SetVideoMode ERROR: %s\n", SDL_GetError());
 		return -1;
 	}
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
-		printf("Renderer could not be created! SDL Error: %s\n",
-		       SDL_GetError());
+	//SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x00);
+
+	// get window surface
+	surface = SDL_GetWindowSurface(window);
+	if (!surface) {
+		printf("SDL_GetWindowSurface ERROR: %s\n", SDL_GetError());
 		return -1;
 	}
 
-	SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0xFF, 0x00);
-
-	int img_flags = IMG_INIT_PNG;
+	/*int img_flags = IMG_INIT_PNG;
 	if (!(IMG_Init(img_flags) & img_flags)) {
 		printf("SDL_image could not initialize! SDL_image Error: %s\n",
 		       IMG_GetError());
 		return -1;
-	}
+	}*/
 
 	return 0;
 }
@@ -225,7 +232,7 @@ static int tile_set_VRAM(uint16_t first_byte_addr, uint8_t *tile_matrix)
 }
 
 // debug function to display the full content of VRAM
-static int draw_frame_VRAM()
+/*static int draw_frame_VRAM()
 {
 	static uint32_t cpt_w = 0;
 	static uint32_t cpt_lg = 0;
@@ -276,7 +283,7 @@ static int draw_frame_VRAM()
 	//printf("[pixel_distribution][w,lg,dg,d] %u, %u, %u, %u\n", cpt_w, cpt_lg, cpt_dg, cpt_d);
 
 	return 0;
-}
+}*/
 
 uint8_t background[256 * 256] = {};
 
@@ -284,32 +291,31 @@ static int draw_frame_SCREEN()
 {
 	// DBG: display BG ///////////////////////////////////////
 	// TODO: display only screen, not full background
-	int x, y, color;
+	int x, y, color32;
 	for (y = 0; y < 256; y++) {
 		for (x = 0; x < 256; x++) {
 			switch (background[y * 256 + x]) {
 			case 0:
-				color = COLOR_WHITE;
+				color32 = COLOR32_WHITE;
 				break;
 			case 1:
-				color = COLOR_LIGHTGRAY;
+				color32 = COLOR32_LIGHTGRAY;
 				break;
 			case 2:
-				color = COLOR_DARKGRAY;
+				color32 = COLOR32_DARKGRAY;
 				break;
 			case 3:
-				color = COLOR_BLACK;
+				color32 = COLOR32_BLACK;
 				break;
 			default:
 				break;
 			}
-			SDL_SetRenderDrawColor(renderer, color, color, color, 0xFF);
-			SDL_RenderDrawPoint(renderer, x, y);
+			SDL_Rect rect = {x*scale, y*scale, scale, scale}; // x, y, width, height
+			SDL_FillRect(surface, &rect, color32);
 		}
 	}
-	SDL_RenderPresent(renderer);
 	memset(background, 0, 256 * 256);
-	SDL_RenderPresent(renderer);
+	SDL_UpdateWindowSurface(window);
 
 	static int frame_cpt = 0;
 	//printf("frame_cpt = %d\n", frame_cpt);

@@ -74,9 +74,11 @@ int main(int argc, char** argv)
 {
     int ret;
 
-    if(argc != 2) {
-        printf("invalid command usage, shall be:\n");
-        printf("        ./balaboy <rom_path>\n");
+    if(argc < 2 || argc > 3) {
+        printf("Invalid command usage, shall be:\n");
+        printf("        ./balaboy <rom_path> <screen_scale>\n");
+        printf("Example:\n");
+        printf("        ./balaboy tetris.gb 3\n");
         goto exit;
     }
 
@@ -89,6 +91,15 @@ int main(int argc, char** argv)
     if (ret < 0) {
         printf("failed to load ROM\n");
         goto exit;
+    }
+
+    if(argc >= 3) {
+        int screen_scale = atoi(argv[2]);
+        if (screen_scale > 6 || screen_scale <= 0) {
+            printf("Invalid screen_scale value. It must be contained whitin [1,6]\n");
+            goto exit;
+        }
+        gpu_set_scale(screen_scale);
     }
 
     // init
