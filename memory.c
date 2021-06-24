@@ -92,6 +92,11 @@ void mem_fill(uint16_t addr, uint8_t *data, uint16_t size)
     memcpy(memory + addr, data, size);
 }
 
+void mem_DIV_increment(uint8_t opcode_duration)
+{
+    memory[DIV] += opcode_duration / 4;
+}
+
 void mem_init()
 {
     memory[0xFF05] = 0x00;

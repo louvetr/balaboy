@@ -188,7 +188,7 @@ int main(int argc, char** argv)
         cpu_exec_opcode(&op_length, &op_duration);
 
         // DBG: force timings from deltabeard
-        op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
+        //op_duration = OP_CYCLES[mem_get_byte(cpu_get_PC())];
 
 
 
@@ -200,6 +200,7 @@ int main(int argc, char** argv)
         gpu_processing(op_duration);
 
         // Timers management
+        mem_DIV_increment(op_duration);
 
 
         // Input management

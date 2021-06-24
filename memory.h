@@ -27,6 +27,7 @@
 uint8_t mem_get_byte(uint16_t addr);
 void mem_set_byte(uint16_t addr, uint8_t value);
 void mem_fill(uint16_t addr, uint8_t *data, uint16_t size);
+void mem_DIV_increment(uint8_t opcode_duration);
 void mem_init();
 
 int dump_VRAM();
