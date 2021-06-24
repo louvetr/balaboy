@@ -416,15 +416,12 @@ static int gpu_set_line_sprite(uint8_t line)
 					     tile_idx * 16 /*+ (line%8) * 2*/;
 
 			if (y_flip)
-				tile_addr += (line % 8) * 2;
-			else
 				tile_addr += (8 - line % 8) * 2;
+			else
+				tile_addr += (line % 8) * 2;
 
 			B0 = mem_get_byte(tile_addr);
 			B1 = mem_get_byte(tile_addr + 1);
-
-			/*if(B0 || B1)
-				printf("%s\n", __func__);*/
 
 			int idxPixel = line * 256 + x;
 			tile_set_line_sprite(B0, B1, layer, x_flip, palette,
