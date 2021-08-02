@@ -35,35 +35,7 @@ uint8_t OP_CYCLES[0x100] = {
 	12,12, 8, 4, 0,16, 8,32,12, 8,16, 4, 0, 0, 8,32     // 0xF0
 };
 
-static int load_rom(char* path)
-{
 
-    FILE *fd = fopen(path, "r");
-    if (fd == NULL){
-        printf("failed to open ROM file\n");
-        return -EINVAL;
-    }
-    fseek(fd, 0, SEEK_END);
-    uint32_t rom_size = ftell(fd);
-    //printf("ROM size is %d kB\n", rom_size / 1024);
-    if (rom_size > (1024*32)) {
-        printf("ROM with size bigger than 32 kB aren't supported yet\n");
-        return -EINVAL;
-    }
-
-    uint8_t* buf = calloc(1, rom_size);
-    if(!buf){
-        printf("allocation failed\n");
-        return -ENOMEM;
-    }
-    fseek(fd, 0, SEEK_SET);
-    fread(buf, rom_size, 1, fd);
-    mem_fill(0, buf, rom_size);
-    free(buf);
-    fclose(fd);
-
-    return 0;
-} 
 
 void set_force_log()
 {
@@ -87,7 +59,7 @@ int main(int argc, char** argv)
     printf("argv[1] = %s\n", argv[1]);*/
 
     // Load the ROM
-    ret = load_rom(argv[1]);
+    ret = mem_load_rom(argv[1]);
     if (ret < 0) {
         printf("failed to load ROM\n");
         goto exit;

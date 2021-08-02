@@ -1,3 +1,4 @@
+#include <stdlib.h>
 
 #include "cpu.h"
 #include "memory.h"
@@ -2229,6 +2230,7 @@ uint8_t cpu_exec_opcode(uint8_t *opcode_length, uint8_t *opcode_duration)
 	default:
 		printf("[ERROR][%s:%d] unkown opcode 0x%x!\n", __func__,
 		       __LINE__, opcode);
+		exit(0);
 	}
 
 
